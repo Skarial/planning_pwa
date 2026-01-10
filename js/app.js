@@ -377,6 +377,14 @@ async function renderMonthlyPlanning() {
       input.value = value;
       entry.serviceCode = value;
 
+      // règle métier : services interdits → pas d'heure supp
+      if (EXTRA_FORBIDDEN_SERVICES.includes(value)) {
+        entry.extra = false;
+        day.classList.remove("extra");
+      }
+
+      savePlanningEntry(entry);
+
       if (value === "REPOS") input.classList.add("repos");
       else input.classList.remove("repos");
 
@@ -392,6 +400,15 @@ async function renderMonthlyPlanning() {
         item.onclick = () => {
           input.value = r.code;
           entry.serviceCode = r.code;
+
+          // règle métier
+          if (EXTRA_FORBIDDEN_SERVICES.includes(r.code)) {
+            entry.extra = false;
+            day.classList.remove("extra");
+          }
+
+          savePlanningEntry(entry);
+
           suggest.style.display = "none";
         };
         suggest.appendChild(item);
@@ -399,53 +416,6 @@ async function renderMonthlyPlanning() {
 
       suggest.style.display = "block";
     };
-
-    if (!locked) {
-      let timer = null;
-      if (!locked) {
-        let longPressTimer = null;
-
-        if (!locked) {
-          let longPressTimer = null;
-
-          day.addEventListener(
-            "pointerdown",
-            (e) => {
-              // ⛔ ignore si le clic démarre sur l’input ou les suggestions
-              if (
-                e.target.closest("input") ||
-                e.target.closest(".suggest-list")
-              ) {
-                return;
-              }
-
-              longPressTimer = setTimeout(() => {
-                if (EXTRA_FORBIDDEN_SERVICES.includes(entry.serviceCode)) {
-                  return;
-                }
-
-                entry.extra = !entry.extra;
-                day.classList.toggle("extra", entry.extra);
-              }, 600);
-            },
-            true // phase capture maintenue
-          );
-
-          day.addEventListener("pointerup", () => clearTimeout(longPressTimer));
-          day.addEventListener("pointerleave", () =>
-            clearTimeout(longPressTimer)
-          );
-        }
-
-        day.addEventListener("pointerup", () => clearTimeout(longPressTimer));
-        day.addEventListener("pointerleave", () =>
-          clearTimeout(longPressTimer)
-        );
-      }
-
-      day.addEventListener("pointerup", () => clearTimeout(timer));
-      day.addEventListener("pointerleave", () => clearTimeout(timer));
-    }
 
     day.append(num, input, suggest);
     grid.appendChild(day);
