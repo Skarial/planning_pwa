@@ -9,7 +9,7 @@ let displayedMonthIndex = new Date().getMonth();
 let consultedDate = null;
 let monthState = {}; // { iso: { date, serviceCode, locked, extra } }
 
-const EXTRA_FORBIDDEN_SERVICES = ["REPOS", "DM", "DAM"];
+const EXTRA_FORBIDDEN_SERVICES = ["REPOS"];
 
 // =======================
 // UTILITAIRES
@@ -344,7 +344,6 @@ async function renderMonthlyPlanning() {
 
     const day = document.createElement("div");
     day.className = "day";
-    if (entry.extra) day.classList.add("extra");
 
     const num = document.createElement("div");
     num.className = "day-number";
@@ -360,6 +359,51 @@ async function renderMonthlyPlanning() {
     const suggest = document.createElement("div");
     suggest.className = "suggest-list";
     suggest.style.display = "none";
+
+    // =======================
+    // BOUTON HEURE SUPPLÉMENTAIRE
+    // =======================
+
+    const extraBtn = document.createElement("button");
+    extraBtn.className = "extra-btn";
+    extraBtn.type = "button";
+    extraBtn.innerHTML = `
+  <span class="icon-clock">⏱</span>
+  <span class="icon-euro">€</span>
+`;
+
+    function updateExtraButtonState() {
+      const forbidden = EXTRA_FORBIDDEN_SERVICES.includes(entry.serviceCode);
+      const disabled = locked || forbidden;
+
+      extraBtn.disabled = disabled;
+
+      if (disabled) {
+        if (entry.extra) {
+          entry.extra = false;
+          savePlanningEntry(entry);
+        }
+        extraBtn.classList.remove("active");
+        return;
+      }
+
+      if (entry.extra === true) {
+        extraBtn.classList.add("active");
+      } else {
+        extraBtn.classList.remove("active");
+      }
+    }
+
+    extraBtn.onclick = () => {
+      if (extraBtn.disabled) return;
+
+      entry.extra = !entry.extra;
+      savePlanningEntry(entry);
+
+      updateExtraButtonState();
+    };
+
+    updateExtraButtonState();
 
     input.addEventListener("pointerdown", (e) => e.stopPropagation());
 
@@ -384,6 +428,7 @@ async function renderMonthlyPlanning() {
       }
 
       savePlanningEntry(entry);
+      updateExtraButtonState();
 
       if (value === "REPOS") input.classList.add("repos");
       else input.classList.remove("repos");
@@ -408,6 +453,7 @@ async function renderMonthlyPlanning() {
           }
 
           savePlanningEntry(entry);
+          updateExtraButtonState();
 
           suggest.style.display = "none";
         };
@@ -417,7 +463,7 @@ async function renderMonthlyPlanning() {
       suggest.style.display = "block";
     };
 
-    day.append(num, input, suggest);
+    day.append(num, input, extraBtn, suggest);
     grid.appendChild(day);
   });
 
