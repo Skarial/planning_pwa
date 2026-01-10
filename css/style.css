@@ -1,0 +1,370 @@
+/* =========================
+   RESET + BASE
+   ========================= */
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f6f8;
+  color: #111;
+  padding: 20px;
+}
+
+/* =========================
+   CONTENEURS
+   ========================= */
+
+#planning,
+#view-home,
+#view-day {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* =========================
+   NAVIGATION HAUTE
+   ========================= */
+
+.top-nav {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #0066ff;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   NAVIGATION MOIS
+   ========================= */
+
+.month-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.month-btn {
+  background: #e9ecef;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  color: #0066ff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.month-btn:hover {
+  background: #dfe3e7;
+}
+
+.month-current {
+  font-size: 2.4rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* =========================
+   CARD
+   ========================= */
+
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+/* =========================
+   CONSULTATION DATE (ACCUEIL)
+   ========================= */
+
+.consult-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.consult-row input[type="date"] {
+  flex: 1;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.primary-btn {
+  height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 10px;
+  background: #0066ff;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.primary-btn:hover {
+  background: #0053cc;
+}
+
+/* =========================
+   GRILLE MENSUELLE
+   ========================= */
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.day-header {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.day {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  min-height: 120px;
+}
+
+.day.empty {
+  background: transparent;
+}
+
+.day-number {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* =========================
+   INPUT SERVICE (STYLE SELECT)
+   ========================= */
+
+.day input.service-input {
+  display: block;
+  width: 100%;
+  height: 36px;
+  padding: 6px 28px 6px 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230066ff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+
+  box-sizing: border-box;
+
+  /* SERVICE PAR DÉFAUT = VERT */
+  color: #1b9e3c;
+}
+
+/* REPOS = BLEU */
+.day input.service-input.repos {
+  color: #0066ff;
+}
+
+/* focus */
+.day input.service-input:focus {
+  outline: none;
+  border-color: #0066ff;
+}
+
+/* désactivé */
+.day input.service-input:disabled {
+  background-color: #e9ecef;
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* =========================
+   AUJOURD’HUI / DEMAIN / JOUR
+   ========================= */
+
+.today-card-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* SERVICE = VERT */
+.today-card-service {
+  font-weight: 700;
+  color: #1b9e3c;
+}
+
+/* REPOS = BLEU */
+.today-card-service.repos {
+  color: #0066ff;
+}
+
+.today-card-time {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* =========================
+   DESKTOP
+   ========================= */
+
+@media (min-width: 769px) {
+  .month-nav,
+  .card {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .consult-row {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .month-nav {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .month-current {
+    font-size: 1.6rem;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .month-grid {
+    gap: 6px;
+  }
+
+  .day {
+    min-height: 78px;
+    padding: 6px;
+  }
+}
+
+/* =========================
+   MOBILE TRÈS ÉTROIT
+   ========================= */
+
+@media (max-width: 360px) {
+  .month-nav {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .month-btn {
+    width: 100%;
+  }
+
+  .month-grid {
+    grid-template-columns: repeat(7, minmax(60px, 1fr));
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* =========================
+   SUGGESTIONS
+   ========================= */
+
+.suggest-list {
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.suggest-item {
+  padding: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.suggest-item:hover {
+  background: #f0f4ff;
+}
+
+/* =========================
+   HEURES SUPPLÉMENTAIRES
+   ========================= */
+
+/* conteneur jour avec heure supp */
+.day.extra {
+  position: relative;
+}
+
+/* pastille orange */
+.day.extra::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  background-color: #ff9800;
+  border-radius: 50%;
+}
+
+/* =========================
+   HEURE SUPPLÉMENTAIRE – TEXTE
+   ========================= */
+
+.extra-label {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ff9800;
+}
