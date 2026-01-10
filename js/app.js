@@ -373,9 +373,22 @@ async function renderMonthlyPlanning() {
 `;
 
     function updateExtraButtonState() {
-      const forbidden = EXTRA_FORBIDDEN_SERVICES.includes(entry.serviceCode);
-      const disabled = locked || forbidden;
+      const isRepos = entry.serviceCode === "REPOS";
+      const disabled = locked;
 
+      // REPOS → bouton invisible
+      if (isRepos) {
+        if (entry.extra) {
+          entry.extra = false;
+          savePlanningEntry(entry);
+        }
+        extraBtn.style.display = "none";
+        extraBtn.classList.remove("active");
+        return;
+      }
+
+      // autres services → bouton visible
+      extraBtn.style.display = "";
       extraBtn.disabled = disabled;
 
       if (disabled) {
@@ -387,11 +400,7 @@ async function renderMonthlyPlanning() {
         return;
       }
 
-      if (entry.extra === true) {
-        extraBtn.classList.add("active");
-      } else {
-        extraBtn.classList.remove("active");
-      }
+      extraBtn.classList.toggle("active", entry.extra === true);
     }
 
     extraBtn.onclick = () => {
@@ -416,50 +425,52 @@ async function renderMonthlyPlanning() {
 
     input.oninput = async () => {
       const q = input.value.trim().toUpperCase();
-      const value = q || "REPOS";
 
-      input.value = value;
-      entry.serviceCode = value;
+      // reset visuel
+      input.classList.remove("repos");
+      suggest.innerHTML = "";
 
-      // règle métier : services interdits → pas d'heure supp
-      if (EXTRA_FORBIDDEN_SERVICES.includes(value)) {
-        entry.extra = false;
-        day.classList.remove("extra");
+      // rien tapé → pas de suggestion
+      if (!q) {
+        suggest.style.display = "none";
+        return;
       }
 
-      savePlanningEntry(entry);
-      updateExtraButtonState();
-
-      if (value === "REPOS") input.classList.add("repos");
-      else input.classList.remove("repos");
-
-      suggest.innerHTML = "";
-      if (!q) return;
-
       const results = await suggestServices(q, iso);
+
+      // 👉 AUCUN RÉSULTAT → ON N’AFFICHE RIEN
+      if (results.length === 0) {
+        suggest.style.display = "none";
+        return;
+      }
+
+      // 👉 AU MOINS UNE SUGGESTION
       results.forEach((r) => {
         const item = document.createElement("div");
         item.className = "suggest-item";
         item.textContent = r.code;
+
         item.addEventListener("pointerdown", (e) => e.stopPropagation());
+
         item.onclick = () => {
           input.value = r.code;
           entry.serviceCode = r.code;
 
-          // règle métier
-          if (EXTRA_FORBIDDEN_SERVICES.includes(r.code)) {
-            entry.extra = false;
-            day.classList.remove("extra");
+          if (r.code === "REPOS") {
+            input.classList.add("repos");
+          } else {
+            input.classList.remove("repos");
           }
 
           savePlanningEntry(entry);
           updateExtraButtonState();
-
           suggest.style.display = "none";
         };
+
         suggest.appendChild(item);
       });
 
+      // 👉 affichage UNIQUEMENT si contenu
       suggest.style.display = "block";
     };
 

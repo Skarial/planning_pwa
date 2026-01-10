@@ -104,7 +104,10 @@ window.suggestServices = async function (input, dateISO, limit = 8) {
 
   // 1) Filtre REPOS + validité saisonnière
   const eligible = services.filter((s) => {
-    if (s.code === "REPOS") return false;
+    // REPOS uniquement si l'utilisateur tape "R"
+    if (s.code === "REPOS") {
+      return q === "R";
+    }
 
     if (s.validite === "ALL_YEAR") return true;
     if (s.validite === "SUMMER_ONLY") return summer;
