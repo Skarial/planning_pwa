@@ -3,6 +3,19 @@ console.log("app.js – STABLE CLIC LONG");
 // =======================
 // ÉTAT GLOBAL
 // =======================
+function getAdjacentMonths(year, monthIndex) {
+  const prevYear = monthIndex === 0 ? year - 1 : year;
+  const prevMonth = monthIndex === 0 ? 12 : monthIndex;
+
+  const nextYear = monthIndex === 11 ? year + 1 : year;
+  const nextMonth = monthIndex === 11 ? 1 : monthIndex + 2;
+
+  return [
+    `${prevYear}-${String(prevMonth).padStart(2, "0")}`,
+    `${year}-${String(monthIndex + 1).padStart(2, "0")}`,
+    `${nextYear}-${String(nextMonth).padStart(2, "0")}`,
+  ];
+}
 
 let displayedYear = new Date().getFullYear();
 let displayedMonthIndex = new Date().getMonth();
@@ -64,6 +77,18 @@ function isMonthLocked(year, monthIndex) {
     year < today.getFullYear() ||
     (year === today.getFullYear() && monthIndex < today.getMonth())
   );
+}
+
+function getDayNameFR(date) {
+  return [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ][date.getDay()];
 }
 
 // =======================
@@ -305,30 +330,112 @@ async function renderMonthlyPlanning() {
   const monthISO = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
   const locked = isMonthLocked(year, monthIndex);
 
-  const planningDB = await getPlanningForMonth(monthISO);
   monthState = {};
-  planningDB.forEach((e) => {
-    monthState[e.date] = {
-      date: e.date,
-      serviceCode: e.serviceCode ?? "REPOS",
-      locked: e.locked ?? false,
-      extra: e.extra ?? false,
-    };
-  });
+
+  const monthsToLoad = getAdjacentMonths(year, monthIndex);
+
+  for (const m of monthsToLoad) {
+    const entries = await getPlanningForMonth(m);
+
+    entries.forEach((e) => {
+      monthState[e.date] = {
+        date: e.date,
+        serviceCode: e.serviceCode ?? "REPOS",
+        locked: e.locked ?? false,
+        extra: e.extra ?? false,
+      };
+    });
+  }
 
   const card = document.createElement("div");
   card.className = "card";
 
   const grid = document.createElement("div");
-  grid.className = "month-grid";
+  grid.className = "month-weeks";
 
-  const firstDay = new Date(year, monthIndex, 1);
-  const offset = (firstDay.getDay() + 6) % 7;
-  for (let i = 0; i < offset; i++) {
-    grid.appendChild(document.createElement("div")).className = "day empty";
-  }
+  const days = getAllDaysOfMonth(year, monthIndex);
 
-  getAllDaysOfMonth(year, monthIndex).forEach((d) => {
+  let currentWeek = null;
+  let weekDaysContainer = null;
+
+  days.forEach((d, index) => {
+    // nouvelle semaine le lundi ou au début du mois
+    if (d.getDay() === 1 || index === 0) {
+      const week = document.createElement("div");
+      week.className = "week";
+
+      const weekDays = document.createElement("div");
+      weekDays.className = "week-days";
+
+      // 👉 jours du mois précédent (début du mois)
+      if (index === 0) {
+        const firstDayIndex = (d.getDay() + 6) % 7; // lundi = 0
+
+        for (let offset = firstDayIndex; offset > 0; offset--) {
+          const fakeDate = new Date(d);
+          fakeDate.setDate(d.getDate() - offset);
+
+          const fakeDay = document.createElement("div");
+          fakeDay.className = "day other-month";
+
+          const dayName = document.createElement("div");
+          dayName.className = "day-name";
+          dayName.textContent = getDayNameFR(fakeDate);
+
+          const num = document.createElement("div");
+          num.className = "day-number";
+          num.textContent = fakeDate.getDate();
+
+          const fakeISO = toISODateLocal(fakeDate);
+          const fakeEntry = monthState[fakeISO];
+
+          const fakeInput = document.createElement("input");
+          fakeInput.className = "service-input";
+          fakeInput.disabled = true;
+          fakeInput.value = fakeEntry?.serviceCode || "REPOS";
+
+          if (fakeInput.value === "REPOS") {
+            fakeInput.classList.add("repos");
+          }
+
+          const fakeExtraBtn = document.createElement("button");
+          fakeExtraBtn.className = "extra-btn";
+          fakeExtraBtn.disabled = true;
+          fakeExtraBtn.type = "button";
+
+          fakeExtraBtn.innerHTML = `
+            <span class="icon-clock">⏱</span>
+            <span class="icon-euro">€</span>
+          `;
+
+          // visibilité selon le service
+
+          if (fakeEntry && fakeEntry.serviceCode !== "REPOS") {
+            fakeExtraBtn.style.visibility = "visible";
+
+            if (fakeEntry.extra === true) {
+              fakeExtraBtn.classList.add("active");
+            }
+          } else {
+            fakeExtraBtn.style.visibility = "hidden";
+          }
+
+          const fakeSuggest = document.createElement("div");
+          fakeSuggest.className = "suggest-list";
+          fakeSuggest.style.display = "none";
+
+          fakeDay.append(dayName, num, fakeInput, fakeExtraBtn, fakeSuggest);
+          weekDays.appendChild(fakeDay);
+        }
+      }
+
+      week.appendChild(weekDays);
+      grid.appendChild(week);
+
+      currentWeek = week;
+      weekDaysContainer = weekDays;
+    }
+
     const iso = toISODateLocal(d);
 
     if (!monthState[iso]) {
@@ -344,6 +451,10 @@ async function renderMonthlyPlanning() {
 
     const day = document.createElement("div");
     day.className = "day";
+
+    const dayName = document.createElement("div");
+    dayName.className = "day-name";
+    dayName.textContent = getDayNameFR(d);
 
     const num = document.createElement("div");
     num.className = "day-number";
@@ -372,8 +483,9 @@ async function renderMonthlyPlanning() {
   <span class="icon-euro">€</span>
 `;
 
-    function updateExtraButtonState() {
-      const isRepos = entry.serviceCode === "REPOS";
+    function updateExtraButtonState(currentValue = null) {
+      const service = currentValue ?? entry.serviceCode;
+      const isRepos = service === "REPOS";
       const disabled = locked;
 
       // REPOS → bouton invisible
@@ -382,20 +494,18 @@ async function renderMonthlyPlanning() {
           entry.extra = false;
           savePlanningEntry(entry);
         }
-        extraBtn.style.display = "none";
+
+        extraBtn.style.visibility = "hidden";
+        extraBtn.disabled = true;
         extraBtn.classList.remove("active");
         return;
       }
 
-      // autres services → bouton visible
-      extraBtn.style.display = "";
+      // autres services
+      extraBtn.style.visibility = "visible";
       extraBtn.disabled = disabled;
 
       if (disabled) {
-        if (entry.extra) {
-          entry.extra = false;
-          savePlanningEntry(entry);
-        }
         extraBtn.classList.remove("active");
         return;
       }
@@ -426,11 +536,17 @@ async function renderMonthlyPlanning() {
     input.oninput = async () => {
       const q = input.value.trim().toUpperCase();
 
+      // synchro immédiate état local + DB
+      entry.serviceCode = q || "REPOS";
+      savePlanningEntry(entry);
+
+      // mise à jour immédiate du bouton (sans délai)
+      updateExtraButtonState(q);
+
       // reset visuel
       input.classList.remove("repos");
       suggest.innerHTML = "";
 
-      // rien tapé → pas de suggestion
       if (!q) {
         suggest.style.display = "none";
         return;
@@ -438,13 +554,11 @@ async function renderMonthlyPlanning() {
 
       const results = await suggestServices(q, iso);
 
-      // 👉 AUCUN RÉSULTAT → ON N’AFFICHE RIEN
       if (results.length === 0) {
         suggest.style.display = "none";
         return;
       }
 
-      // 👉 AU MOINS UNE SUGGESTION
       results.forEach((r) => {
         const item = document.createElement("div");
         item.className = "suggest-item";
@@ -456,11 +570,7 @@ async function renderMonthlyPlanning() {
           input.value = r.code;
           entry.serviceCode = r.code;
 
-          if (r.code === "REPOS") {
-            input.classList.add("repos");
-          } else {
-            input.classList.remove("repos");
-          }
+          input.classList.toggle("repos", r.code === "REPOS");
 
           savePlanningEntry(entry);
           updateExtraButtonState();
@@ -470,12 +580,11 @@ async function renderMonthlyPlanning() {
         suggest.appendChild(item);
       });
 
-      // 👉 affichage UNIQUEMENT si contenu
       suggest.style.display = "block";
     };
 
-    day.append(num, input, extraBtn, suggest);
-    grid.appendChild(day);
+    day.append(dayName, num, input, extraBtn, suggest);
+    weekDaysContainer.appendChild(day);
   });
 
   card.appendChild(grid);

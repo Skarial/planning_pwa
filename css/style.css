@@ -134,13 +134,6 @@ body {
    GRILLE MENSUELLE
    ========================= */
 
-.month-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
-  margin-top: 15px;
-}
-
 .day-header {
   text-align: center;
   font-weight: 700;
@@ -148,6 +141,7 @@ body {
 }
 
 .day {
+  position: relative;
   background: #f9fafb;
   border-radius: 8px;
   padding: 10px;
@@ -281,15 +275,6 @@ body {
   .card {
     padding: 12px;
   }
-
-  .month-grid {
-    gap: 6px;
-  }
-
-  .day {
-    min-height: 78px;
-    padding: 6px;
-  }
 }
 
 /* =========================
@@ -305,12 +290,6 @@ body {
 
   .month-btn {
     width: 100%;
-  }
-
-  .month-grid {
-    grid-template-columns: repeat(7, minmax(60px, 1fr));
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -419,4 +398,66 @@ body {
   color: #adb5bd;
   cursor: not-allowed;
   border-color: #dee2e6;
+}
+
+/* =========================
+   MOIS PAR COLONNES DE SEMAINES
+   ========================= */
+
+.month-weeks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* une colonne = une semaine */
+.week {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* jours empilés */
+.week-days {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* jour en colonne semaine */
+.week-days .day {
+  min-height: auto;
+  padding: 6px;
+}
+
+/* =========================
+   JOUR DE LA SEMAINE
+   ========================= */
+
+.day {
+  position: relative; /* si pas déjà présent */
+}
+
+.day-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6c757d;
+  text-align: left;
+  margin-bottom: 4px;
+}
+
+/* =========================
+   JOURS AUTRE MOIS
+   ========================= */
+
+.day.other-month {
+  background: #f1f3f5;
+  color: #adb5bd;
+}
+
+.day.other-month .day-number {
+  color: #adb5bd;
 }
