@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
+
+# Node / PWA
+node_modules/
+
+# Build
+dist/
+build/
+.cache/
+
+# Service Worker
+sw.js.map
