@@ -5,7 +5,7 @@
 :root {
   --color-primary: #0066ff;
   --color-primary-hover: #0053cc;
-  --color-warning: #ff9800;
+  --color-warning: #92400e;
   --color-service: #2c5f2d;
   --color-repos: #4a5568;
 
@@ -135,7 +135,7 @@ body {
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-card);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 8px;
 }
 
 /* =========================
@@ -286,7 +286,7 @@ body {
    ========================= */
 
 .day-name-full {
-  font-size: 1.1rem;
+  font-size: 30px;
   font-weight: 700;
   text-transform: capitalize;
 }
@@ -294,14 +294,30 @@ body {
 .day-date {
   font-size: 0.9rem;
   color: var(--color-text-muted);
+  font-weight: 700;
 }
 
+.day-service.repos {
+  color: var(--color-repos);
+}
+
+.card .day-name-full {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.card .day-date {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0;
+}
 /* =========================
    VUE ACCUEIL
    ========================= */
 
 .card-title {
-  font-size: 1.1rem;
+  font-size: 1.6rem;
   font-weight: 700;
   margin-bottom: 6px;
 }
@@ -391,10 +407,6 @@ body {
 .update-banner-btn:hover {
   background: var(--color-primary-hover);
 }
-
-/* =========================
-   RESPONSIVE
-   ========================= */
 
 /* =========================
    RESPONSIVE

@@ -24,14 +24,6 @@ export async function renderHome() {
   container.innerHTML = "";
 
   // =======================
-  // CONTENEUR PRINCIPAL
-  // =======================
-
-  const mainCard = document.createElement("div");
-  mainCard.className = "card";
-  container.appendChild(mainCard);
-
-  // =======================
   // NAVIGATION
   // =======================
 
@@ -44,7 +36,7 @@ export async function renderHome() {
   monthLink.onclick = showMonth;
 
   nav.appendChild(monthLink);
-  mainCard.appendChild(nav);
+  container.appendChild(nav); // directement dans container, pas dans mainCard
 
   // =======================
   // CONFIG SAISONNIÈRE

@@ -74,7 +74,7 @@ export async function renderDay(dateISO) {
 
     // --- 3. Service
     const serviceEl = document.createElement("div");
-    serviceEl.className = "today-card-service";
+    serviceEl.className = "card-service";
     serviceEl.textContent = serviceCode;
     if (serviceCode === "REPOS") serviceEl.classList.add("repos");
 
