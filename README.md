@@ -1,3 +1,5 @@
+<!-- refresh github -->
+
 # Planning PWA
 
 Application web progressive de gestion de planning.
