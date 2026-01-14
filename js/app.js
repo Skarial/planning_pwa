@@ -4,7 +4,7 @@
   Code source original – usage interne / personnel
 */
 
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.0.1";
 
 const __APP_SIGNATURE__ = {
   created: "2026-01",
