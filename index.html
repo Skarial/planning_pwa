@@ -29,6 +29,56 @@
   </head>
 
   <body>
+    <!-- MENU -->
+    <button id="menu-toggle" aria-label="Menu">☰</button>
+    <div id="menu-overlay"></div>
+
+    <nav id="side-menu" aria-hidden="true">
+      <div class="menu-section">
+        <h3>Navigation</h3>
+
+        <button data-action="day">Vue jour</button>
+        <button data-action="month">Planning mensuel</button>
+      </div>
+
+      <div class="menu-section">
+        <h3>Outils</h3>
+
+        <button id="menu-consult-date">Consulter une date</button>
+
+        <div id="consult-date-form" class="menu-form hidden">
+          <label for="consult-date-input">Date</label>
+          <input type="date" id="consult-date-input" />
+          <button id="consult-date-submit">Valider</button>
+        </div>
+
+        <button id="menu-season">Période saisonnière</button>
+
+        <div id="season-form" class="menu-form hidden">
+          <label for="season-start">Début</label>
+          <input type="date" id="season-start" />
+
+          <label for="season-end">Fin</label>
+          <input type="date" id="season-end" />
+
+          <button id="season-submit">Valider</button>
+        </div>
+
+        <button disabled>Import CSV</button>
+        <button disabled>Export / partage</button>
+        <button disabled>Sauvegarde / restauration</button>
+      </div>
+
+      <div class="menu-section">
+        <h3>Paramètres</h3>
+        <button id="toggle-dark">Mode sombre</button>
+        <button disabled>Mode paysage</button>
+        <button disabled>France</button>
+        <button disabled>Reset saisons</button>
+        <button disabled class="danger">Réinitialisation complète</button>
+      </div>
+    </nav>
+
     <!-- VUES -->
     <section id="view-home"></section>
     <section id="view-day" style="display: none"></section>

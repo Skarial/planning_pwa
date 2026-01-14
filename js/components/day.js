@@ -1,7 +1,4 @@
-import { showHome, showMonth } from "../router.js";
-
 import { getAllServices, getPlanningEntry } from "../data/storage.js";
-
 import { getPeriodeForDate } from "../utils/periods.js";
 import { toISODateLocal, formatDateFR, getDayNameFullFR } from "../utils.js";
 
@@ -17,26 +14,6 @@ export async function renderDay(dateISO) {
 
   const el = document.getElementById("view-day");
   el.innerHTML = "";
-
-  // =======================
-  // NAVIGATION
-  // =======================
-
-  const nav = document.createElement("div");
-  nav.className = "top-nav";
-
-  const home = document.createElement("a");
-  home.className = "nav-link";
-  home.textContent = "Accueil";
-  home.onclick = showHome;
-
-  const month = document.createElement("a");
-  month.className = "nav-link";
-  month.textContent = "Planning mois";
-  month.onclick = showMonth;
-
-  nav.append(home, month);
-  el.appendChild(nav);
 
   // =======================
   // DONNÉES

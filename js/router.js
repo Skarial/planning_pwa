@@ -1,4 +1,5 @@
-import { renderHome, getConsultedDate } from "./components/home.js";
+import { renderHome } from "./components/home.js";
+import { getConsultedDate } from "./state/consulted-date.js";
 import { renderDay } from "./components/day.js";
 import { renderMonth } from "./components/month.js";
 

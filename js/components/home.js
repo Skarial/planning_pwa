@@ -1,103 +1,18 @@
-import {
-  getPlanningEntry,
-  getAllServices,
-  getConfig,
-  setConfig,
-} from "../data/storage.js";
-
-import { showMonth, showDay } from "../router.js";
-import { toISODateLocal, formatDateFR } from "../utils.js";
+import { getPlanningEntry, getAllServices } from "../data/storage.js";
+import { toISODateLocal } from "../utils.js";
 import { getPeriodeForDate } from "../utils/periods.js";
-
-// =======================
-// ÉTAT LOCAL
-// =======================
-
-let consultedDate = null;
-
-// =======================
-// RENDER
-// =======================
 
 export async function renderHome() {
   const container = document.getElementById("view-home");
   container.innerHTML = "";
 
-  // =======================
-  // NAVIGATION
-  // =======================
-
-  const nav = document.createElement("div");
-  nav.className = "top-nav";
-
-  const monthLink = document.createElement("a");
-  monthLink.className = "nav-link";
-  monthLink.textContent = "Planning mois";
-  monthLink.onclick = showMonth;
-
-  nav.appendChild(monthLink);
-  container.appendChild(nav); // directement dans container, pas dans mainCard
-
-  // =======================
-  // CONFIG SAISONNIÈRE
-  // =======================
-
-  const saisonCard = document.createElement("div");
-  saisonCard.className = "card";
-
-  const title = document.createElement("div");
-  title.className = "date-label";
-  title.textContent = "Période saisonnière";
-
-  const rowSaison = document.createElement("div");
-  rowSaison.className = "consult-row";
-
-  const inputDebut = document.createElement("input");
-  inputDebut.type = "date";
-
-  const inputFin = document.createElement("input");
-  inputFin.type = "date";
-
-  rowSaison.append(inputDebut, inputFin);
-  saisonCard.append(title, rowSaison);
-  container.appendChild(saisonCard);
-
-  // =======================
-  // CONSULTATION DATE
-  // =======================
-
-  const cardSearch = document.createElement("div");
-  cardSearch.className = "card";
-
-  const dateLabel = document.createElement("div");
-  dateLabel.className = "date-label";
-  dateLabel.textContent = "Date à consulter";
-
-  const row = document.createElement("div");
-  row.className = "consult-row";
-
-  const inputDate = document.createElement("input");
-  inputDate.type = "date";
-
-  const btn = document.createElement("button");
-  btn.className = "primary-btn";
-  btn.textContent = "Consulter";
-
-  btn.onclick = () => {
-    if (!inputDate.value) return;
-    consultedDate = inputDate.value;
-    showDay();
-  };
-
-  row.append(inputDate, btn);
-  cardSearch.append(dateLabel, row);
-  container.appendChild(cardSearch);
-
-  // =======================
-  // AUJOURD'HUI / DEMAIN
-  // =======================
-
   const allServices = await getAllServices();
+
+  // Sécurité absolue
+  if (!Array.isArray(allServices)) {
+    console.error("allServices invalide", allServices);
+    return;
+  }
 
   for (const [label, offset] of [
     ["Aujourd'hui", 0],
@@ -115,6 +30,7 @@ export async function renderHome() {
 
     if (serviceCode !== "REPOS") {
       const serviceData = allServices.find((s) => s.code === serviceCode);
+
       if (serviceData?.periodes) {
         const periodeActive = await getPeriodeForDate(iso);
         const periode =
@@ -147,12 +63,4 @@ export async function renderHome() {
 
     container.appendChild(dayCard);
   }
-}
-
-// =======================
-// API
-// =======================
-
-export function getConsultedDate() {
-  return consultedDate;
 }

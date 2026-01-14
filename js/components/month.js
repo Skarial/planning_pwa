@@ -4,7 +4,6 @@ import {
   savePlanningEntry,
   getAllServices,
 } from "../data/storage.js";
-import { showHome } from "../router.js";
 import {
   getAllDaysOfMonth,
   getMonthLabelFR,
@@ -32,21 +31,6 @@ let monthState = {};
 export async function renderMonth() {
   const container = document.getElementById("view-month");
   container.innerHTML = "";
-
-  // =======================
-  // NAVIGATION HAUTE
-  // =======================
-
-  const navTop = document.createElement("div");
-  navTop.className = "top-nav";
-
-  const homeLink = document.createElement("a");
-  homeLink.className = "nav-link";
-  homeLink.textContent = "Accueil";
-  homeLink.onclick = showHome;
-
-  navTop.appendChild(homeLink);
-  container.appendChild(navTop);
 
   // =======================
   // NAVIGATION MOIS

@@ -13,6 +13,7 @@ const __APP_SIGNATURE__ = {
 
 import { initServicesIfNeeded } from "./data/services-init.js";
 import { showHome } from "./router.js";
+import "./components/menu.js";
 
 // =======================
 // INIT APP (UNIQUE)
