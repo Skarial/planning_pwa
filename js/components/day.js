@@ -62,7 +62,7 @@ export async function renderDay(dateISO) {
     card.append(dayNameEl, dateEl, serviceEl);
     if (timeEl) card.appendChild(timeEl);
 
-    if (isExtra) {
+    if (serviceCode !== "REPOS" && isExtra) {
       const extra = document.createElement("div");
       extra.className = "extra-label";
       extra.textContent = "Heure supplémentaire";

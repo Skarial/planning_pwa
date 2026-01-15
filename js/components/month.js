@@ -157,9 +157,7 @@ export async function renderMonth() {
     suggest.style.display = "none";
 
     input.onfocus = () => {
-      if (entry.serviceCode === "REPOS") {
-        input.value = "";
-      }
+      input.value = "";
       input.classList.remove("repos");
       suggest.innerHTML = "";
       suggest.style.display = "none";
@@ -177,15 +175,18 @@ export async function renderMonth() {
 
     function updateExtra() {
       if (entry.serviceCode === "REPOS") {
-        extraBtn.style.visibility = "hidden";
+        extraBtn.style.display = "none";
         entry.extra = false;
         savePlanningEntry(entry);
         return;
       }
-      extraBtn.style.visibility = "visible";
+
+      extraBtn.style.display = "block";
       extraBtn.disabled = locked;
       extraBtn.classList.toggle("active", entry.extra === true);
     }
+
+    updateExtra(); // ✅ APPLICATION INITIALE
 
     extraBtn.onclick = async () => {
       if (locked) return;
