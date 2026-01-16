@@ -4,7 +4,7 @@
   Code source original – usage interne / personnel
 */
 
-const APP_VERSION = "1.0.2";
+const APP_VERSION = "1.0.4";
 
 const __APP_SIGNATURE__ = {
   created: "2026-01",
@@ -48,7 +48,7 @@ function scheduleMidnightRefresh() {
     now.getDate() + 1,
     0,
     0,
-    1 // sécurité
+    1, // sécurité
   );
 
   const delay = nextMidnight.getTime() - now.getTime();
