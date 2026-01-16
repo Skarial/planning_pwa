@@ -1,4 +1,4 @@
-const CACHE_NAME = "planning-pwa-v1.0.2";
+const CACHE_NAME = "planning-pwa-v1.0.3";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -27,16 +27,17 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      );
-    })
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME)
+            .map((name) => caches.delete(name))
+        );
+      })
+      .then(() => self.clients.claim())
   );
-
-  self.clients.claim();
 });
 
 // =======================
