@@ -3,9 +3,7 @@
   © 2026 – Tous droits réservés
   Code source original – usage interne / personnel
 */
-
-const APP_VERSION = "1.0.4";
-
+export const APP_VERSION = "1.0.7";
 const __APP_SIGNATURE__ = {
   created: "2026-01",
   context: "internal tool / personal project",
@@ -65,7 +63,9 @@ function scheduleMidnightRefresh() {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
-    const reg = await navigator.serviceWorker.register("./service-worker.js");
+    const reg = await navigator.serviceWorker.register(
+      `./service-worker.js?v=${APP_VERSION}`,
+    );
 
     reg.addEventListener("updatefound", () => {
       const newWorker = reg.installing;
@@ -132,3 +132,6 @@ console.log("APP CHARGÉE – version", APP_VERSION);
 window.addEventListener("error", (e) => {
   console.error("ERREUR NON CAPTURÉE :", e.message);
 });
+
+
+

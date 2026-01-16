@@ -1,4 +1,5 @@
-const CACHE_NAME = "planning-pwa-v1.0.4";
+const CACHE_NAME = "planning-pwa-cache";
+
 const ASSETS_TO_CACHE = [
   "./css/style.css",
   "./js/app.js",
@@ -42,13 +43,13 @@ self.addEventListener("activate", (event) => {
 });
 
 // =======================
-// FETCH — STRATÉGIE SIMPLE
+// FETCH — STRATÉGIE
 // =======================
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
 
-  // Toujours le HTML depuis le réseau (avec fallback)
+  // HTML : réseau en priorité
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).catch(() => caches.match("./index.html")));
     return;
