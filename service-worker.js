@@ -1,64 +1,89 @@
-const CACHE_NAME = "planning-pwa-cache";
+/* =====================================================
+   SERVICE WORKER — PWA PLANNING
+   Objectif :
+   - cache versionné
+   - activation volontaire
+   - aucun reload forcé
+   ===================================================== */
 
-const ASSETS_TO_CACHE = [
+/* ⚠️ Ce placeholder est remplacé temporairement
+   par le script de bump avant le commit */
+const APP_VERSION = "__APP_VERSION__";
+
+const CACHE_PREFIX = "planning-pwa-cache-";
+const CACHE_NAME = CACHE_PREFIX + APP_VERSION;
+
+/* Noyau minimal — le reste passe par fetch */
+const CORE_ASSETS = [
+  "./",
+  "./index.html",
   "./css/style.css",
   "./js/app.js",
   "./manifest.webmanifest",
 ];
 
-// =======================
-// INSTALL — INSTALLATION IMMÉDIATE
-// =======================
-
+/* =====================================================
+   INSTALL — PRÉPARATION UNIQUEMENT
+   ===================================================== */
 self.addEventListener("install", (event) => {
-  self.skipWaiting();
-
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return Promise.all([
-        cache.addAll(ASSETS_TO_CACHE),
-        cache.add("./index.html"),
-      ]);
-    }),
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)),
   );
+  /* ❌ PAS de skipWaiting */
 });
 
-// =======================
-// ACTIVATE — NETTOYAGE + CONTRÔLE
-// =======================
-
+/* =====================================================
+   ACTIVATE — NETTOYAGE + NOTIFICATION
+   ===================================================== */
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames
-            .filter((name) => name !== CACHE_NAME)
-            .map((name) => caches.delete(name)),
-        );
-      })
-      .then(() => self.clients.claim()),
+      .then((names) =>
+        Promise.all(
+          names
+            .filter((n) => n.startsWith(CACHE_PREFIX) && n !== CACHE_NAME)
+            .map((n) => caches.delete(n)),
+        ),
+      )
+      .then(async () => {
+        /* Notification contrôlée : le SW est prêt,
+           mais ne prend PAS le contrôle */
+        const clients = await self.clients.matchAll({ type: "window" });
+        for (const client of clients) {
+          client.postMessage({
+            type: "SW_READY",
+            version: APP_VERSION,
+          });
+        }
+      }),
   );
 });
 
-// =======================
-// FETCH — STRATÉGIE
-// =======================
-
+/* =====================================================
+   FETCH — STRATÉGIE
+   ===================================================== */
 self.addEventListener("fetch", (event) => {
   const request = event.request;
 
-  // HTML : réseau en priorité
+  /* Navigation : réseau en priorité */
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).catch(() => caches.match("./index.html")));
     return;
   }
 
-  // Assets : cache-first
+  /* Assets : cache → réseau */
   event.respondWith(
-    caches.match(request).then((response) => {
-      return response || fetch(request);
-    }),
+    caches.match(request).then((cached) => cached || fetch(request)),
   );
+});
+
+/* =====================================================
+   MESSAGES — ACTIVATION VOLONTAIRE
+   ===================================================== */
+self.addEventListener("message", (event) => {
+  if (event.data === "ACTIVATE_NEW_SW") {
+    /* Activation uniquement sur demande explicite */
+    self.skipWaiting();
+  }
 });

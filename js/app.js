@@ -4,10 +4,6 @@
   Code source original – usage interne / personnel
 */
 export const APP_VERSION = "1.0.8";
-const __APP_SIGNATURE__ = {
-  created: "2026-01",
-  context: "internal tool / personal project",
-};
 
 import { initServicesIfNeeded } from "./data/services-init.js";
 import { showHome } from "./router.js";
@@ -23,7 +19,9 @@ async function initApp() {
   await initServicesIfNeeded();
   initUI();
   initTimeLogic();
+  initServiceWorker();
 }
+
 function initUI() {
   initMenu();
   showHome();
@@ -46,79 +44,84 @@ function scheduleMidnightRefresh() {
     now.getDate() + 1,
     0,
     0,
-    1, // sécurité
+    1,
   );
 
   const delay = nextMidnight.getTime() - now.getTime();
 
   setTimeout(() => {
-    console.log("Minuit détecté – rafraîchissement automatique");
-    window.location.reload();
+    console.log("Minuit détecté – nouvelle journée disponible");
+    // ❌ aucun reload automatique
   }, delay);
 }
 
 // =======================
-// SERVICE WORKER + DÉTECTION UPDATE
+// SERVICE WORKER — CYCLE MAÎTRISÉ
 // =======================
 
-if ("serviceWorker" in navigator) {
+let waitingWorker = null;
+
+function initServiceWorker() {
+  if (
+    !("serviceWorker" in navigator) ||
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1"
+  ) {
+    return;
+  }
+
   window.addEventListener("load", async () => {
     const reg = await navigator.serviceWorker.register(
       `./service-worker.js?v=${APP_VERSION}`,
     );
 
-    reg.addEventListener("updatefound", () => {
-      const newWorker = reg.installing;
-
-      newWorker.addEventListener("statechange", () => {
-        if (
-          newWorker.state === "installed" &&
-          navigator.serviceWorker.controller
-        ) {
-          showUpdateBannerOncePerVersion();
-        }
-      });
+    // Un nouveau SW est prêt mais PAS actif
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      if (event.data?.type === "SW_READY") {
+        waitingWorker = reg.waiting;
+        showUpdateBanner();
+      }
     });
   });
 }
 
 // =======================
-// NOTIFICATION (1 FOIS PAR VERSION)
+// BANNIÈRE DE MISE À JOUR
 // =======================
 
-function showUpdateBannerOncePerVersion() {
-  const lastSeenVersion = localStorage.getItem("lastSeenAppVersion");
-
-  // Déjà vu pour cette version → rien à faire
-  if (lastSeenVersion === APP_VERSION) return;
-
+function showUpdateBanner() {
   if (document.getElementById("update-banner")) return;
 
   const banner = document.createElement("div");
   banner.id = "update-banner";
-  banner.className = "update-banner";
+  banner.className = "update-banner visible";
 
   banner.innerHTML = `
     <div class="update-banner-text">
-      Une mise à jour est disponible.
+      Une nouvelle version de l’application est disponible.
     </div>
     <div class="update-banner-actions">
-      <button class="update-banner-reload">Recharger maintenant</button>
+      <button class="update-banner-reload">Mettre à jour</button>
       <button class="update-banner-btn">Plus tard</button>
     </div>
   `;
 
   document.body.appendChild(banner);
 
-  // Recharger immédiatement
+  // Mise à jour volontaire
   banner.querySelector(".update-banner-reload").onclick = () => {
-    localStorage.setItem("lastSeenAppVersion", APP_VERSION);
-    window.location.reload();
+    if (!waitingWorker) return;
+
+    waitingWorker.postMessage("ACTIVATE_NEW_SW");
+
+    // reload volontaire, contrôlé
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
   };
 
-  // Ignorer pour cette version
+  // Ignorer pour cette session
   banner.querySelector(".update-banner-btn").onclick = () => {
-    localStorage.setItem("lastSeenAppVersion", APP_VERSION);
     banner.remove();
   };
 }
@@ -132,7 +135,3 @@ console.log("APP CHARGÉE – version", APP_VERSION);
 window.addEventListener("error", (e) => {
   console.error("ERREUR NON CAPTURÉE :", e.message);
 });
-
-
-
-
