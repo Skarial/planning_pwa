@@ -1,20 +1,37 @@
 // js/sw/sw-register.js
 
-export function registerServiceWorker() {
+export function registerServiceWorker(onUpdateAvailable) {
   if (!("serviceWorker" in navigator)) return;
 
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
     return;
   }
 
-  navigator.serviceWorker
-    .register("/planning_pwa/service-worker.js", {
-      scope: "/planning_pwa/",
-    })
-    .then(() => {
+  window.addEventListener("load", async () => {
+    try {
+      const reg = await navigator.serviceWorker.register("./service-worker.js");
+
       console.log("[SW] enregistré");
-    })
-    .catch((err) => {
+
+      // Détection fiable d'une nouvelle version
+      reg.addEventListener("updatefound", () => {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+
+        newWorker.addEventListener("statechange", () => {
+          if (
+            newWorker.state === "installed" &&
+            navigator.serviceWorker.controller
+          ) {
+            // 👉 notifier l'application
+            if (typeof onUpdateAvailable === "function") {
+              onUpdateAvailable(reg);
+            }
+          }
+        });
+      });
+    } catch (err) {
       console.error("[SW] échec enregistrement", err);
-    });
+    }
+  });
 }

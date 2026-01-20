@@ -3,7 +3,9 @@
   © 2026 – Tous droits réservés
   Code source original – usage interne / personnel
 */
-export const APP_VERSION = "1.0.8";
+
+export const APP_VERSION = "1.0.10";
+
 import { registerServiceWorker } from "./sw/sw-register.js";
 import { initServicesIfNeeded } from "./data/services-init.js";
 import { showHome } from "./router.js";
@@ -15,11 +17,20 @@ import { initMenu } from "./components/menu.js";
 
 window.addEventListener("DOMContentLoaded", initApp);
 
+// Quand l’utilisateur revient sur l’app (onglet / arrière-plan)
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    checkWaitingServiceWorker();
+  }
+});
+
 async function initApp() {
   await initServicesIfNeeded();
   initUI();
   initTimeLogic();
-  registerServiceWorker();
+
+  // Enregistrement SW + callback update
+  registerServiceWorker(onServiceWorkerUpdateAvailable);
 }
 
 function initUI() {
@@ -56,51 +67,24 @@ function scheduleMidnightRefresh() {
 }
 
 // =======================
-// SERVICE WORKER — ARCHI STANDARD
+// SERVICE WORKER — UPDATE DISPONIBLE
 // =======================
 
-function initServiceWorker() {
-  if (
-    !("serviceWorker" in navigator) ||
-    location.hostname === "localhost" ||
-    location.hostname === "127.0.0.1"
-  ) {
-    return;
-  }
+let pendingSWRegistration = null;
 
-  async function initServiceWorker() {
-    if (
-      !("serviceWorker" in navigator) ||
-      location.hostname === "localhost" ||
-      location.hostname === "127.0.0.1"
-    ) {
-      return;
-    }
+function onServiceWorkerUpdateAvailable(registration) {
+  pendingSWRegistration = registration;
+  showUpdateBanner(registration);
+}
 
-    try {
-      const reg = await navigator.serviceWorker.register(
-        "../service-worker.js",
-        {
-          scope: "../",
-        },
-      );
+// Vérifie au retour si un SW est déjà en attente
+async function checkWaitingServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
 
-      reg.addEventListener("updatefound", () => {
-        const newWorker = reg.installing;
-        if (!newWorker) return;
-
-        newWorker.addEventListener("statechange", () => {
-          if (
-            newWorker.state === "installed" &&
-            navigator.serviceWorker.controller
-          ) {
-            showUpdateBanner(reg);
-          }
-        });
-      });
-    } catch (err) {
-      console.error("SW registration failed:", err);
-    }
+  const reg = await navigator.serviceWorker.getRegistration();
+  if (reg && reg.waiting) {
+    pendingSWRegistration = reg;
+    showUpdateBanner(reg);
   }
 }
 
@@ -127,13 +111,13 @@ function showUpdateBanner(reg) {
 
   document.body.appendChild(banner);
 
-  banner.querySelector(".update-banner-reload").onclick = async () => {
-    const waiting = reg.waiting;
-    if (!waiting) return;
+  // Validation volontaire
+  banner.querySelector(".update-banner-reload").onclick = () => {
+    if (!reg.waiting) return;
 
-    waiting.postMessage("SKIP_WAITING");
+    reg.waiting.postMessage("SKIP_WAITING");
 
-    // Rechargement uniquement quand le nouveau SW prend le contrôle
+    // Reload uniquement quand le nouveau SW contrôle la page
     navigator.serviceWorker.addEventListener(
       "controllerchange",
       () => {
@@ -149,7 +133,7 @@ function showUpdateBanner(reg) {
 }
 
 // =======================
-// LOG & SÉCURITÉ
+// LOG & SÉCURITÉ DEV
 // =======================
 
 console.log("APP CHARGÉE – version", APP_VERSION);
@@ -157,3 +141,5 @@ console.log("APP CHARGÉE – version", APP_VERSION);
 window.addEventListener("error", (e) => {
   console.error("ERREUR NON CAPTURÉE :", e.message);
 });
+
+
