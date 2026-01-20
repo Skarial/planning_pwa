@@ -11,7 +11,7 @@ export function registerServiceWorker() {
     .register("/planning_pwa/service-worker.js", {
       scope: "/planning_pwa/",
     })
-    .then((reg) => {
+    .then(() => {
       console.log("[SW] enregistré");
     })
     .catch((err) => {
