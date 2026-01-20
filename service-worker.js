@@ -5,7 +5,8 @@
    - aucune communication éphémère
    ===================================================== */
 
-const APP_VERSION = "__APP_VERSION__";
+const APP_VERSION = "test-update-1";
+
 const CACHE_PREFIX = "planning-pwa-cache-";
 const CACHE_NAME = CACHE_PREFIX + APP_VERSION;
 
