@@ -69,9 +69,9 @@ function initServiceWorker() {
   }
 
   window.addEventListener("load", async () => {
-    const reg = await navigator.serviceWorker.register(
-      `./service-worker.js?v=${APP_VERSION}`,
-    );
+    const reg = await navigator.serviceWorker.register("./service-worker.js", {
+      scope: "./",
+    });
 
     // Détection fiable des mises à jour
     reg.addEventListener("updatefound", () => {
