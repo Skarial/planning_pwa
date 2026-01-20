@@ -68,26 +68,40 @@ function initServiceWorker() {
     return;
   }
 
-  window.addEventListener("load", async () => {
-    const reg = await navigator.serviceWorker.register("./service-worker.js", {
-      scope: "./",
-    });
+  async function initServiceWorker() {
+    if (
+      !("serviceWorker" in navigator) ||
+      location.hostname === "localhost" ||
+      location.hostname === "127.0.0.1"
+    ) {
+      return;
+    }
 
-    // Détection fiable des mises à jour
-    reg.addEventListener("updatefound", () => {
-      const newWorker = reg.installing;
-      if (!newWorker) return;
+    try {
+      const reg = await navigator.serviceWorker.register(
+        "./service-worker.js",
+        {
+          scope: "./",
+        },
+      );
 
-      newWorker.addEventListener("statechange", () => {
-        if (
-          newWorker.state === "installed" &&
-          navigator.serviceWorker.controller
-        ) {
-          showUpdateBanner(reg);
-        }
+      reg.addEventListener("updatefound", () => {
+        const newWorker = reg.installing;
+        if (!newWorker) return;
+
+        newWorker.addEventListener("statechange", () => {
+          if (
+            newWorker.state === "installed" &&
+            navigator.serviceWorker.controller
+          ) {
+            showUpdateBanner(reg);
+          }
+        });
       });
-    });
-  });
+    } catch (err) {
+      console.error("SW registration failed:", err);
+    }
+  }
 }
 
 // =======================
