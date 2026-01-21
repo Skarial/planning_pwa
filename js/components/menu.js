@@ -50,6 +50,10 @@ export function initMenu() {
   let isOpen = false;
   let resetState = "closed"; // closed | choice | month
   let resetDate = new Date();
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let currentTranslateX = 0;
+  let isSwiping = false;
 
   // =======================
   // RESET TOTAL — APPUI LONG
@@ -188,6 +192,9 @@ export function initMenu() {
     resetState = "closed";
     renderResetPanel();
     isOpen = false;
+    menu.style.transform = "";
+    menu.style.transition = "";
+    currentTranslateX = 0;
   }
 
   toggle.addEventListener("click", () => {
@@ -195,6 +202,57 @@ export function initMenu() {
   });
 
   overlay.addEventListener("click", closeMenu);
+  // =======================
+  // SWIPE GAUCHE — FERMETURE MENU
+  // =======================
+
+  menu.addEventListener("touchstart", (e) => {
+    if (!isOpen) return;
+
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    isSwiping = true;
+
+    menu.style.transition = "none";
+  });
+
+  menu.addEventListener("touchmove", (e) => {
+    if (!isOpen || !isSwiping) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+
+    // si geste vertical → abandon swipe
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      isSwiping = false;
+      menu.style.transition = "";
+      return;
+    }
+
+    // swipe gauche uniquement
+    if (deltaX < 0) {
+      currentTranslateX = deltaX;
+      menu.style.transform = `translateX(${deltaX}px)`;
+    }
+  });
+
+  menu.addEventListener("touchend", () => {
+    if (!isOpen) return;
+
+    menu.style.transition = "transform 0.25s ease";
+    const threshold = -menu.offsetWidth * 0.3;
+
+    if (currentTranslateX < threshold) {
+      closeMenu();
+    } else {
+      menu.style.transform = "translateX(0)";
+    }
+
+    isSwiping = false;
+    currentTranslateX = 0;
+  });
 
   // =======================
   // RESET — MOIS
