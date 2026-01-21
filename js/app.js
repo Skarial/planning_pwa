@@ -1,7 +1,7 @@
 /*
   Application Planning PWA
 */
-export const APP_VERSION = "1.0.28";
+export const APP_VERSION = "1.0.30";
 
 import { registerServiceWorker } from "./sw/sw-register.js";
 import { initServicesIfNeeded } from "./data/services-init.js";
@@ -14,14 +14,24 @@ import { initMenu } from "./components/menu.js";
 
 window.addEventListener("DOMContentLoaded", initApp);
 document.addEventListener("visibilitychange", onVisibilityReturn);
+if ("requestIdleCallback" in window) {
+  requestIdleCallback(() => {
+    checkAndNotifyUpdate();
+  });
+} else {
+  setTimeout(() => {
+    checkAndNotifyUpdate();
+  }, 1500);
+}
 
 async function initApp() {
-  await initServicesIfNeeded();
+  // 1️⃣ Affichage immédiat
   initMenu();
   showHome();
-  registerServiceWorker();
 
-  checkAndNotifyUpdate();
+  // 2️⃣ Tâches non bloquantes
+  initServicesIfNeeded(); // sans await
+  registerServiceWorker(); // sans attendre
 }
 
 // =======================
@@ -75,21 +85,5 @@ function showUpdateBanner() {
     banner.remove();
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

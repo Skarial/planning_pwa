@@ -106,7 +106,7 @@ export async function showGuidedMonth(forcedDate = null) {
   card.appendChild(dayNumber);
 
   const servicesContainer = document.createElement("div");
-  servicesContainer.className = "guided-services-grid";
+  servicesContainer.className = "guided-services-grid guided-month-buttons";
   card.appendChild(servicesContainer);
 
   function renderCompletedView() {

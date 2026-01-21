@@ -37,6 +37,53 @@ export function initMenu() {
   const resetBtn = document.getElementById("menu-reset");
   const resetPanel = document.getElementById("reset-panel");
   const resetAllBtn = document.getElementById("reset-all");
+  // =======================
+  // RESET TOTAL — APPUI LONG (CONFIRMATION)
+  // =======================
+
+  let resetAllTimer = null;
+  let resetAllConfirmed = false;
+  const RESET_ALL_DURATION = 2500; // 2,5 secondes (PLUS LONG que le mois)
+
+  function startResetAllPress() {
+    if (resetAllTimer) return;
+
+    resetAllBtn.classList.add("pressing");
+
+    resetAllTimer = setTimeout(async () => {
+      resetAllConfirmed = true;
+
+      await clearAllPlanning();
+
+      showToast("Planning entièrement réinitialisé");
+
+      resetState = "closed";
+      renderResetPanel();
+      closeMenu();
+    }, RESET_ALL_DURATION);
+  }
+
+  function cancelResetAllPress() {
+    resetAllBtn.classList.remove("pressing");
+
+    if (resetAllTimer) {
+      clearTimeout(resetAllTimer);
+      resetAllTimer = null;
+    }
+
+    resetAllConfirmed = false;
+  }
+
+  // SOURIS
+  resetAllBtn.addEventListener("mousedown", startResetAllPress);
+  resetAllBtn.addEventListener("mouseup", cancelResetAllPress);
+  resetAllBtn.addEventListener("mouseleave", cancelResetAllPress);
+
+  // TACTILE
+  resetAllBtn.addEventListener("touchstart", startResetAllPress);
+  resetAllBtn.addEventListener("touchend", cancelResetAllPress);
+  resetAllBtn.addEventListener("touchcancel", cancelResetAllPress);
+
   const resetMonthBtn = document.getElementById("reset-month");
 
   const resetMonthPicker = document.getElementById("reset-month-picker");
@@ -66,8 +113,14 @@ export function initMenu() {
   const menu = document.getElementById("side-menu");
   const overlay = document.getElementById("menu-overlay");
   const toggle = document.getElementById("menu-toggle");
+
+  if (!menu || !overlay || !toggle) {
+    console.error("Menu DOM manquant");
+    return;
+  }
+
   // =======================
-  // NORMALISATION ÉTAT MENU (ANTI-CACHE)
+  // NORMALISATION ÉTAT MENU
   // =======================
 
   toggle.classList.remove("hidden");
@@ -77,11 +130,6 @@ export function initMenu() {
   menu.classList.remove("open");
   overlay.classList.remove("open");
   menu.setAttribute("aria-hidden", "true");
-
-  if (!menu || !overlay || !toggle) {
-    console.error("Menu DOM manquant");
-    return;
-  }
 
   // =======================
   // SAISON
@@ -96,38 +144,32 @@ export function initMenu() {
 
   loadSeasonForm();
 
-  if (seasonBtn && seasonForm) {
-    seasonBtn.addEventListener("click", () => {
-      seasonForm.classList.toggle("hidden");
-    });
-  }
+  seasonBtn?.addEventListener("click", () => {
+    seasonForm.classList.toggle("hidden");
+  });
 
-  if (seasonSubmit && seasonStart && seasonEnd && seasonForm) {
-    seasonSubmit.addEventListener("click", async () => {
-      const start = seasonStart.value.trim();
-      const end = seasonEnd.value.trim();
+  seasonSubmit?.addEventListener("click", async () => {
+    const start = seasonStart.value.trim();
+    const end = seasonEnd.value.trim();
 
-      if (!start || !end) {
-        await setConfig("saison", {});
-      } else {
-        await setConfig("saison", {
-          saisonDebut: start,
-          saisonFin: end,
-        });
-      }
+    if (!start || !end) {
+      await setConfig("saison", {});
+    } else {
+      await setConfig("saison", {
+        saisonDebut: start,
+        saisonFin: end,
+      });
+    }
 
-      seasonForm.classList.add("hidden");
-      closeMenu();
-    });
-  }
+    seasonForm.classList.add("hidden");
+    closeMenu();
+  });
 
-  seasonReset.addEventListener("click", async () => {
+  seasonReset?.addEventListener("click", async () => {
     await setConfig("saison", {});
-
     seasonStart.value = "";
     seasonEnd.value = "";
     seasonForm.classList.add("hidden");
-
     closeMenu();
     showHome();
   });
@@ -141,20 +183,17 @@ export function initMenu() {
   const consultInput = document.getElementById("consult-date-input");
   const consultSubmit = document.getElementById("consult-date-submit");
 
-  if (consultBtn && consultForm && consultInput && consultSubmit) {
-    consultBtn.addEventListener("click", () => {
-      consultForm.classList.toggle("hidden");
-    });
+  consultBtn?.addEventListener("click", () => {
+    consultForm.classList.toggle("hidden");
+  });
 
-    consultSubmit.addEventListener("click", () => {
-      if (!consultInput.value) return;
-
-      setConsultedDate(consultInput.value);
-      consultForm.classList.add("hidden");
-      showDay();
-      closeMenu();
-    });
-  }
+  consultSubmit?.addEventListener("click", () => {
+    if (!consultInput.value) return;
+    setConsultedDate(consultInput.value);
+    consultForm.classList.add("hidden");
+    showDay();
+    closeMenu();
+  });
 
   // =======================
   // OUVERTURE / FERMETURE
@@ -164,10 +203,8 @@ export function initMenu() {
     menu.classList.add("open");
     overlay.classList.add("open");
     menu.setAttribute("aria-hidden", "false");
-
     menu.style.transition = "transform 0.25s ease";
     menu.style.transform = "translateX(0)";
-
     isOpen = true;
   }
 
@@ -183,6 +220,7 @@ export function initMenu() {
     isOpen = false;
     resetState = "closed";
     renderResetPanel();
+
     menu.style.transition = "";
     menu.style.transform = "";
     currentTranslateX = 0;
@@ -193,63 +231,51 @@ export function initMenu() {
   });
 
   overlay.addEventListener("click", closeMenu);
+
   // =======================
-  // SWIPE GAUCHE — ANIMATION PROGRESSIVE
+  // SWIPE GAUCHE — MENU
   // =======================
 
   menu.addEventListener("touchstart", (e) => {
     if (!isOpen) return;
-
-    const touch = e.touches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
+    const t = e.touches[0];
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
     isSwiping = true;
-
     menu.style.transition = "none";
   });
 
   menu.addEventListener("touchmove", (e) => {
     if (!isOpen || !isSwiping) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
 
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartX;
-    const deltaY = touch.clientY - touchStartY;
-
-    // Si le geste est vertical → on abandonne le swipe
-    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+    if (Math.abs(dy) > Math.abs(dx)) {
       isSwiping = false;
       menu.style.transition = "";
       return;
     }
 
-    // On limite au swipe gauche
-    if (deltaX < 0) {
-      currentTranslateX = deltaX;
-      menu.style.transform = `translateX(${deltaX}px)`;
+    if (dx < 0) {
+      currentTranslateX = dx;
+      menu.style.transform = `translateX(${dx}px)`;
     }
   });
 
   menu.addEventListener("touchend", () => {
     if (!isOpen) return;
-
     menu.style.transition = "transform 0.25s ease";
 
-    // seuil de fermeture (30% de la largeur du menu)
-    const closeThreshold = -menu.offsetWidth * 0.3;
-
-    if (currentTranslateX < closeThreshold) {
+    const threshold = -menu.offsetWidth * 0.3;
+    if (currentTranslateX < threshold) {
       closeMenu();
     } else {
-      // retour à la position ouverte
       menu.style.transform = "translateX(0)";
     }
 
     isSwiping = false;
     currentTranslateX = 0;
-  });
-
-  menu.addEventListener("touchend", () => {
-    isSwiping = false;
   });
 
   // =======================
@@ -286,17 +312,16 @@ export function initMenu() {
   });
 
   resetAllBtn.addEventListener("click", async () => {
-    const ok = confirm(
-      "Cette action supprimera tout le planning.\nAction irréversible.\n\nConfirmer ?",
-    );
+    const ok = await showConfirm({
+      title: "Réinitialisation complète",
+      message: "Cette action supprimera tout le planning. Action irréversible.",
+      confirmText: "Tout supprimer",
+    });
 
     if (!ok) return;
 
     await clearAllPlanning();
-    alert("Planning entièrement réinitialisé.");
-
-    resetState = "closed";
-    renderResetPanel();
+    showToast("Planning entièrement réinitialisé");
     closeMenu();
   });
 
@@ -320,32 +345,60 @@ export function initMenu() {
     updateResetMonthLabel();
   });
 
-  resetConfirmMonth.addEventListener("click", async (e) => {
-    e.stopPropagation();
+  let holdTimer = null;
+  let holdDuration = 1200; // ms
 
-    const monthISO = `${resetDate.getFullYear()}-${String(
-      resetDate.getMonth() + 1,
-    ).padStart(2, "0")}`;
+  resetConfirmMonth.addEventListener("mousedown", startHold);
+  resetConfirmMonth.addEventListener("touchstart", startHold);
 
-    const ok = confirm(
-      `Supprimer définitivement le planning de ${resetMonthLabel.textContent} ?`,
-    );
+  resetConfirmMonth.addEventListener("mouseup", cancelHold);
+  resetConfirmMonth.addEventListener("mouseleave", cancelHold);
+  resetConfirmMonth.addEventListener("touchend", cancelHold);
+  resetConfirmMonth.addEventListener("touchcancel", cancelHold);
 
-    if (!ok) return;
+  function startHold(e) {
+    e.preventDefault();
+    if (holdTimer) return;
 
-    await clearPlanningMonth(monthISO);
-    alert("Planning du mois réinitialisé.");
+    resetConfirmMonth.classList.add("holding");
 
-    resetState = "closed";
-    renderResetPanel();
-    closeMenu();
-  });
+    holdTimer = setTimeout(async () => {
+      holdTimer = null;
+      resetConfirmMonth.classList.remove("holding");
+
+      const monthISO = `${resetDate.getFullYear()}-${String(
+        resetDate.getMonth() + 1,
+      ).padStart(2, "0")}`;
+
+      await clearPlanningMonth(monthISO);
+
+      showToast("Planning du mois réinitialisé");
+
+      resetState = "closed";
+      renderResetPanel();
+      closeMenu();
+    }, holdDuration);
+  }
+
+  function cancelHold() {
+    if (!holdTimer) return;
+
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    resetConfirmMonth.classList.remove("holding");
+  }
 
   // =======================
   // NAVIGATION
   // =======================
 
   menu.addEventListener("click", (e) => {
+    // 🔒 Tant qu'un reset est en cours, on bloque la navigation
+    if (resetState !== "closed") {
+      e.stopPropagation();
+      return;
+    }
+
     const action = e.target.dataset.action;
     if (!action) return;
 
@@ -380,4 +433,59 @@ export function initMenu() {
   if (versionEl) {
     versionEl.textContent = `Version ${APP_VERSION}`;
   }
+}
+
+// =======================
+// TOAST
+// =======================
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast-notification";
+  toast.textContent = message;
+
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add("visible");
+  });
+
+  setTimeout(() => {
+    toast.classList.remove("visible");
+    setTimeout(() => toast.remove(), 300);
+  }, 2200);
+}
+
+// =======================
+// CONFIRM MODALE
+// =======================
+
+function showConfirm({ title, message, confirmText = "Confirmer" }) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "confirm-overlay";
+
+    const modal = document.createElement("div");
+    modal.className = "confirm-modal";
+
+    modal.innerHTML = `
+      <h3>${title}</h3>
+      <p>${message}</p>
+      <div class="confirm-actions">
+        <button class="confirm-cancel">Annuler</button>
+        <button class="confirm-ok danger">${confirmText}</button>
+      </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    const cleanup = (result) => {
+      overlay.remove();
+      resolve(result);
+    };
+
+    overlay.querySelector(".confirm-cancel").onclick = () => cleanup(false);
+    overlay.querySelector(".confirm-ok").onclick = () => cleanup(true);
+  });
 }
