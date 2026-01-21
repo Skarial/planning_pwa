@@ -95,11 +95,26 @@ export function initMenu() {
   resetAllBtn.addEventListener("touchend", cancelResetAllPress);
   resetAllBtn.addEventListener("touchcancel", cancelResetAllPress);
 
+  function remonterMenuEnHaut() {
+    if (!menuScroll || !resetPanel) return;
+
+    // attendre que le DOM soit réellement mis à jour
+    setTimeout(() => {
+      resetPanel.scrollIntoView({
+        block: "start",
+        behavior: "auto",
+      });
+    }, 0);
+  }
+
   // =======================
   // MENU — DOM
   // =======================
 
   const menu = document.getElementById("side-menu");
+  const menuScroll = document.getElementById("side-menu-scroll");
+  if (!menuScroll) return;
+
   const overlay = document.getElementById("menu-overlay");
   const toggle = document.getElementById("menu-toggle");
 
@@ -182,6 +197,7 @@ export function initMenu() {
     overlay.classList.add("open");
     menu.setAttribute("aria-hidden", "false");
     isOpen = true;
+    document.body.style.overflow = "hidden";
   }
 
   function closeMenu() {
@@ -195,6 +211,7 @@ export function initMenu() {
     menu.style.transform = "";
     menu.style.transition = "";
     currentTranslateX = 0;
+    document.body.style.overflow = "";
   }
 
   toggle.addEventListener("click", () => {
@@ -281,14 +298,7 @@ export function initMenu() {
   resetBtn.addEventListener("click", () => {
     resetState = "choice";
     renderResetPanel();
-
-    // ⬇️ Amener visuellement le panneau de réinitialisation
-    requestAnimationFrame(() => {
-      resetPanel.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
+    remonterMenuEnHaut();
   });
 
   resetMonthBtn.addEventListener("click", () => {
@@ -296,6 +306,7 @@ export function initMenu() {
     resetState = "month";
     updateResetMonthLabel();
     renderResetPanel();
+    remonterMenuEnHaut();
   });
 
   let holdTimer = null;
@@ -361,10 +372,14 @@ export function initMenu() {
   // =======================
 
   menu.addEventListener("click", (e) => {
-    if (resetState !== "closed") return;
-
     const action = e.target.dataset.action;
     if (!action) return;
+
+    // ⛔ Bloquer UNIQUEMENT la navigation
+    if (resetState !== "closed") {
+      e.stopPropagation();
+      return;
+    }
 
     switch (action) {
       case "home":
@@ -378,6 +393,11 @@ export function initMenu() {
         break;
       case "guided-month":
         showGuidedMonth();
+        break;
+      case "tetribus":
+        import("../router.js").then(({ showTetribusView }) => {
+          showTetribusView();
+        });
         break;
     }
 

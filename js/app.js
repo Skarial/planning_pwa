@@ -1,7 +1,7 @@
 /*
   Application Planning PWA
 */
-export const APP_VERSION = "1.0.38";
+export const APP_VERSION = "1.0.40";
 
 import { registerServiceWorker } from "./sw/sw-register.js";
 import { initServicesIfNeeded } from "./data/services-init.js";
@@ -89,5 +89,7 @@ function showUpdateBanner() {
     banner.remove();
   };
 }
+
+
 
 
