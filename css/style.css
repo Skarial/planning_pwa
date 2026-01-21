@@ -395,8 +395,40 @@ body {
 }
 
 /* =========================
-   BANNIÈRE MISE À JOUR — BOUTONS
+   BANNIÈRE MISE À JOUR
    ========================= */
+
+.update-banner {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 10000;
+
+  width: calc(100% - 24px);
+  max-width: 720px;
+
+  background: #ffffff;
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  opacity: 0;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.update-banner.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
 
 .update-banner-actions {
   display: flex;
@@ -716,9 +748,9 @@ body {
 
 .toast-notification {
   position: fixed;
-  bottom: 24px;
+  top: 16px;
   left: 50%;
-  transform: translate(-50%, 20px);
+  transform: translate(-50%, -20px);
 
   background: #ffffff;
   color: var(--color-text);
@@ -738,7 +770,7 @@ body {
     transform 0.25s ease,
     opacity 0.25s ease;
 
-  z-index: 10000;
+  z-index: 10001; /* AU-DESSUS de tout */
 }
 
 .toast-notification.visible {
