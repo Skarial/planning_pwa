@@ -4,7 +4,8 @@ import { renderHome } from "./components/home.js";
 import { getConsultedDate } from "./state/consulted-date.js";
 import { renderDay } from "./components/day.js";
 import { renderMonth } from "./components/month.js";
-import { showGuidedMonth } from "./components/guided-month.js";
+import { showGuidedMonth as renderGuidedMonth } from "./components/guided-month.js";
+
 import { showTetribus, stopTetribus } from "./components/tetribus.js";
 
 function getView(name) {
@@ -56,6 +57,17 @@ export function showMonth() {
   const view = activateView("month");
   if (!view) return;
   renderMonth();
+}
+
+// =======================
+// PRÉPARER MOIS SUIVANT
+// =======================
+
+export function showGuidedMonth() {
+  const view = activateView("guided-month");
+  if (!view) return;
+
+  renderGuidedMonth();
 }
 
 // =======================

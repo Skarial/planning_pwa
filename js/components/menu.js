@@ -1,4 +1,5 @@
-import { showHome, showDay, showMonth } from "../router.js";
+import { showHome, showDay, showMonth, showGuidedMonth } from "../router.js";
+
 import { setConsultedDate } from "../state/consulted-date.js";
 import { getConfig, setConfig } from "../data/storage.js";
 import { APP_VERSION } from "../app.js";
@@ -172,9 +173,7 @@ export function initMenu() {
         break;
 
       case "guided-month":
-        import("../router.js").then(({ showGuidedMonth }) => {
-          showGuidedMonth();
-        });
+        showGuidedMonth();
         break;
 
       case "tetribus":
