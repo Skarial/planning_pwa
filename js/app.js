@@ -1,7 +1,7 @@
 /*
   Application Planning PWA
 */
-export const APP_VERSION = "1.0.50";
+export const APP_VERSION = "1.0.52";
 
 import { registerServiceWorker } from "./sw/sw-register.js";
 import { initServicesIfNeeded } from "./data/services-init.js";
@@ -33,6 +33,17 @@ async function initApp() {
   initServicesIfNeeded(); // sans await
   registerServiceWorker(); // sans attendre
 }
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("update-reload")?.addEventListener("click", () => {
+    localStorage.setItem("lastSeenAppVersion", APP_VERSION);
+    location.reload();
+  });
+
+  document.getElementById("update-later")?.addEventListener("click", () => {
+    localStorage.setItem("lastSeenAppVersion", APP_VERSION);
+    hideUpdateBanner();
+  });
+});
 
 // =======================
 // UPDATE DETECTION (ROBUSTE)
@@ -57,37 +68,17 @@ function onVisibilityReturn() {
 // =======================
 
 function showUpdateBanner() {
-  if (document.getElementById("update-banner")) return;
+  const banner = document.getElementById("update-banner");
+  if (!banner) return;
 
-  const banner = document.createElement("div");
-  banner.id = "update-banner";
-  banner.className = "update-banner visible";
+  banner.classList.remove("hidden");
+}
 
-  banner.innerHTML = `
-  <div class="update-banner-text">
-    Une nouvelle version est disponible.
-  </div>
-  <div class="update-banner-actions">
-    <button id="update-now" class="update-btn update-btn-primary">
-      Mettre à jour
-    </button>
-    <button id="update-later" class="update-btn update-btn-secondary">
-      Plus tard
-    </button>
-  </div>
-`;
+function hideUpdateBanner() {
+  const banner = document.getElementById("update-banner");
+  if (!banner) return;
 
-  document.body.appendChild(banner);
-
-  document.getElementById("update-now").onclick = () => {
-    localStorage.setItem("lastSeenAppVersion", APP_VERSION);
-    window.location.reload();
-  };
-
-  document.getElementById("update-later").onclick = () => {
-    localStorage.setItem("lastSeenAppVersion", APP_VERSION);
-    banner.remove();
-  };
+  banner.classList.add("hidden");
 }
 
 
