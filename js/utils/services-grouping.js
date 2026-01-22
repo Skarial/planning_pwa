@@ -46,7 +46,12 @@ export async function groupServices(SERVICES_CATALOG) {
     // SERVICES NUMÉRIQUES (LIGNES)
     // =======================
 
-    if (/^\d{4}$/.test(code)) {
+    // =======================
+    // SERVICES NUMÉRIQUES (lignes)
+    // =======================
+
+    // Codes 3 ou 4 chiffres : 211, 213, 2201, etc.
+    if (/^\d{3,4}$/.test(code)) {
       const line = code.slice(0, 2);
 
       if (!result.LIGNES[line]) {
