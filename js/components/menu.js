@@ -5,6 +5,7 @@ import { clearAllPlanning, clearPlanningMonth } from "../data/storage.js";
 import { setConsultedDate } from "../state/consulted-date.js";
 import { getConfig, setConfig } from "../data/storage.js";
 import { APP_VERSION } from "../app.js";
+import { parseFRDate } from "../utils/conges.js";
 
 // =======================
 // SAISON — RESTAURATION
@@ -124,8 +125,6 @@ export function initMenu() {
   // =======================
 
   const menu = document.getElementById("side-menu");
-  const menuScroll = document.getElementById("side-menu-scroll");
-  if (!menuScroll) return;
 
   const overlay = document.getElementById("menu-overlay");
   const toggle = document.getElementById("menu-toggle");
@@ -139,6 +138,60 @@ export function initMenu() {
   menu.classList.remove("open");
   overlay.classList.remove("open");
   menu.inert = true;
+  // =======================
+  // CONGÉS
+  // =======================
+
+  const congesBtn = document.getElementById("menu-conges");
+  const congesForm = document.getElementById("conges-form");
+  const congesStart = document.getElementById("conges-start");
+  const congesEnd = document.getElementById("conges-end");
+  const congesSubmit = document.getElementById("conges-submit");
+  const congesReset = document.getElementById("conges-reset");
+
+  async function loadCongesForm() {
+    const entry = await getConfig("conges");
+    const value = entry?.value;
+    if (!value) return;
+
+    congesStart.value = value.start || "";
+    congesEnd.value = value.end || "";
+  }
+
+  loadCongesForm();
+
+  congesBtn?.addEventListener("click", () => {
+    congesForm.classList.toggle("hidden");
+  });
+
+  congesSubmit?.addEventListener("click", async () => {
+    const startRaw = congesStart.value.trim();
+    const endRaw = congesEnd.value.trim();
+
+    const startDate = parseFRDate(startRaw);
+    const endDate = parseFRDate(endRaw);
+
+    if (!startDate || !endDate) {
+      showToast("Format invalide (jj/mm/aaaa)");
+      return;
+    }
+
+    await setConfig("conges", {
+      start: startRaw,
+      end: endRaw,
+    });
+
+    congesForm.classList.add("hidden");
+    closeMenu();
+  });
+
+  congesReset?.addEventListener("click", async () => {
+    await setConfig("conges", {});
+    congesStart.value = "";
+    congesEnd.value = "";
+    congesForm.classList.add("hidden");
+    closeMenu();
+  });
 
   // =======================
   // SAISON
