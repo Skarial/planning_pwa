@@ -305,8 +305,7 @@ export async function renderMonth() {
         item.className = "suggest-item";
         item.textContent = service.code;
 
-        item.addEventListener("pointerdown", async (e) => {
-          e.preventDefault();
+        item.addEventListener("click", async (e) => {
           e.stopPropagation();
 
           input.value = service.code;

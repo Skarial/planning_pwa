@@ -355,6 +355,12 @@ body {
 
   max-height: 160px;
   overflow-y: auto;
+
+  /* ⬇️ CORRECTION SCROLL TACTILE */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
   z-index: 20;
 }
 
@@ -368,6 +374,10 @@ body {
 .suggest-item {
   padding: var(--spacing-sm);
   font-size: 0.85rem;
+
+  /* ⬇️ CLÉ POUR LE SCROLL */
+  touch-action: manipulation;
+
   cursor: pointer;
 }
 
