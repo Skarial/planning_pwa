@@ -1,4 +1,3 @@
-console.log("MENU.JS — CLEAN RESET LOGIC");
 import {
   refreshCurrentView,
   showHome,
@@ -6,13 +5,12 @@ import {
   showMonth,
   showGuidedMonth,
 } from "../router.js";
-import { clearConsultedDate } from "../state/consulted-date.js";
 
 import { clearAllPlanning, clearPlanningMonth } from "../data/storage.js";
 import { setConsultedDate } from "../state/consulted-date.js";
 import { getConfig, setConfig } from "../data/storage.js";
 import { APP_VERSION } from "../app.js";
-import { parseFRDate } from "../utils/conges.js";
+
 function isoToFR(iso) {
   if (!iso) return "";
   const [y, m, d] = iso.split("-");
@@ -475,10 +473,7 @@ export function initMenu() {
     const action = e.target.dataset.action;
     if (!action) return;
 
-    if (resetState !== "closed") {
-      e.stopPropagation();
-      return;
-    }
+    if (resetState !== "closed") return;
 
     switch (action) {
       case "home":

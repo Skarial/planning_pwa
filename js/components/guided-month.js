@@ -3,6 +3,7 @@ import {
   savePlanningEntry,
   getPlanningEntry,
 } from "../data/storage.js";
+import { showMonth } from "../router.js";
 
 import { groupServices } from "../utils/services-grouping.js";
 import { toISODateLocal } from "../utils.js";
@@ -42,12 +43,7 @@ export async function showGuidedMonth(forcedDate = null) {
   if (!view) return;
 
   // Masquer les autres vues
-  ["view-home", "view-day", "view-month"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = "none";
-  });
 
-  view.style.display = "block";
   view.innerHTML = "";
 
   // =======================
@@ -158,8 +154,8 @@ export async function showGuidedMonth(forcedDate = null) {
     const btnMonth = document.createElement("button");
     btnMonth.textContent = "📅 Voir le planning du mois";
     btnMonth.onclick = () => {
-      showHome();
-      document.querySelector('[data-action="month"]')?.click();
+      guidedMonthDate = null;
+      showMonth();
     };
 
     const btnHome = document.createElement("button");

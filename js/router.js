@@ -29,11 +29,8 @@ function hideAllViews() {
 // =======================
 
 export function showHome() {
-  clearConsultedDate();
-
   const view = activateView("home");
   if (!view) return;
-
   renderHome();
 }
 
@@ -42,14 +39,14 @@ export function showHome() {
 // =======================
 
 export function showDay() {
+  const view = activateView("day");
+  if (!view) return;
+
   const date = getConsultedDate();
   if (!date) {
     showHome();
     return;
   }
-
-  const view = activateView("day");
-  if (!view) return;
 
   renderDay(date);
 }
@@ -82,14 +79,21 @@ export function showGuidedMonth() {
 
 function activateView(name) {
   const view = getView(name);
-  if (!view) return null;
+  if (!view) {
+    console.warn(`Vue inexistante : ${name}`);
+    return null;
+  }
+
+  // 🔒 VERROU ARCHITECTURAL
+  if (name !== "day") {
+    clearConsultedDate();
+  }
 
   currentView = name;
 
   hideAllViews();
   view.style.display = "block";
   view.innerHTML = "";
-
   return view;
 }
 
