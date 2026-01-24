@@ -124,19 +124,15 @@ async function renderWeek(container) {
     let serviceClass = "";
     let horaireHTML = "";
     const isExtra = entry?.extra === true;
-    let workedMinutes = 0;
+
+    let serviceCode = "REPOS";
 
     if (isConges) {
       serviceLabel = "CONGÉ";
       serviceClass = "conges";
     } else {
-      const serviceCode = entry?.serviceCode || "REPOS";
+      serviceCode = entry?.serviceCode || "REPOS";
       serviceLabel = serviceCode;
-      workedMinutes = calculateWorkedMinutes(
-        serviceCode,
-        activePeriode,
-        allServices,
-      );
 
       if (serviceCode === "REPOS") {
         serviceClass = "repos";
@@ -150,6 +146,11 @@ async function renderWeek(container) {
         );
       }
     }
+    const workedMinutes = calculateWorkedMinutes(
+      serviceCode,
+      activePeriode,
+      allServices,
+    );
 
     const card = document.createElement("div");
     card.className = "card week-day-card";

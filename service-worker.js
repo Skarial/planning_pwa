@@ -54,13 +54,19 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // Navigation : réseau prioritaire + fallback
+  // Navigation : réseau prioritaire
   if (req.mode === "navigate") {
     event.respondWith(fetch(req).catch(() => caches.match("./index.html")));
     return;
   }
 
-  // Assets : cache-first
+  // JS & CSS : réseau prioritaire (OBLIGATOIRE)
+  if (req.destination === "script" || req.destination === "style") {
+    event.respondWith(fetch(req));
+    return;
+  }
+
+  // Autres assets : cache-first
   event.respondWith(caches.match(req).then((res) => res || fetch(req)));
 });
 
@@ -73,27 +79,3 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
