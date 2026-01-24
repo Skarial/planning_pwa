@@ -347,9 +347,7 @@ export async function renderMonth() {
     day.appendChild(frag);
     const rowIndex = Math.floor(dayGridIndex / 7);
 
-    // lignes 0 et 1 → bas
-    // ligne 2 et + → haut
-    suggest.classList.toggle("above", rowIndex >= 2);
+    suggest.classList.toggle("above", rowIndex >= 3);
 
     dayGridIndex++;
 
