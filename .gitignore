@@ -22,3 +22,5 @@ build/
 
 # Service Worker
 sw.js.map
+
+desktop.ini
