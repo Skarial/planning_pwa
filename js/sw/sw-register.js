@@ -1,4 +1,5 @@
 // js/sw/sw-register.js
+let swRegistration = null;
 
 export function registerServiceWorker(onUpdateAvailable) {
   if (!("serviceWorker" in navigator)) return;
@@ -9,13 +10,15 @@ export function registerServiceWorker(onUpdateAvailable) {
 
   window.addEventListener("load", async () => {
     try {
-      const reg = await navigator.serviceWorker.register("./service-worker.js");
+      swRegistration = await navigator.serviceWorker.register(
+        "./service-worker.js",
+      );
 
       console.log("[SW] enregistré");
 
       // Détection fiable d'une nouvelle version
-      reg.addEventListener("updatefound", () => {
-        const newWorker = reg.installing;
+      swRegistration.addEventListener("updatefound", () => {
+        const newWorker = swRegistration.installing;
         if (!newWorker) return;
 
         newWorker.addEventListener("statechange", () => {
@@ -23,9 +26,8 @@ export function registerServiceWorker(onUpdateAvailable) {
             newWorker.state === "installed" &&
             navigator.serviceWorker.controller
           ) {
-            // 👉 notifier l'application
             if (typeof onUpdateAvailable === "function") {
-              onUpdateAvailable(reg);
+              onUpdateAvailable(swRegistration);
             }
           }
         });
@@ -34,4 +36,8 @@ export function registerServiceWorker(onUpdateAvailable) {
       console.error("[SW] échec enregistrement", err);
     }
   });
+}
+
+export function getServiceWorkerRegistration() {
+  return swRegistration;
 }

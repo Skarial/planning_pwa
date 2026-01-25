@@ -15,8 +15,8 @@ import {
   formatServiceLabel,
   toISODateLocal,
 } from "../utils.js";
-import { getActivePeriodeLibelle } from "../utils/periods.js";
-import { getCongesDaysISOForMonth } from "../utils/conges.js";
+import { getActivePeriodeLibelle } from "../domain/periods.js";
+import { getCongesDaysISOForMonth } from "../domain/conges.js";
 
 // =======================
 // ÉTAT LOCAL (AFFICHAGE)

@@ -4,7 +4,7 @@
 // Conservée volontairement pour usage futur (détail jour, lien direct, debug).
 
 import { getAllServices, getPlanningEntry } from "../data/storage.js";
-import { getActivePeriodeLibelle } from "../utils/periods.js";
+import { getActivePeriodeLibelle } from "../domain/periods.js";
 import { toISODateLocal, formatDateFR, getDayNameFullFR } from "../utils.js";
 
 // =======================

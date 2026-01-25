@@ -5,10 +5,10 @@ import {
 } from "../data/storage.js";
 import { showMonth } from "../router.js";
 
-import { groupServices } from "../utils/services-grouping.js";
+import { groupServices } from "../domain/services-grouping.js";
 import { toISODateLocal } from "../utils.js";
 import { showHome } from "../router.js";
-import { getGuidedStartDay, isDateInConges } from "../utils/conges.js";
+import { getGuidedStartDay, isDateInConges } from "../domain/conges.js";
 
 // =======================
 // VUE : PRÉPARER MOIS SUIVANT

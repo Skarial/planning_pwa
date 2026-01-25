@@ -1,8 +1,8 @@
 // home.js : vue Accueil — semaine glissante (swipe horizontal)
-import { isDateInConges } from "../utils/conges.js";
+import { isDateInConges } from "../domain/conges.js";
 import { getPlanningEntry, getAllServices } from "../data/storage.js";
 import { toISODateLocal } from "../utils.js";
-import { getActivePeriodeLibelle } from "../utils/periods.js";
+import { getActivePeriodeLibelle } from "../domain/periods.js";
 
 let currentWeekStart = getMonday(new Date());
 
