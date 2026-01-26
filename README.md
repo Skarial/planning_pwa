@@ -1,114 +1,112 @@
-# Planning PWA — Gestion de planning chauffeur
+# Planning PWA
 
-Application Web Progressive (PWA) de gestion de planning, conçue pour un usage **terrain**, **hors ligne**, sur smartphone.
+Application web progressive de gestion de planning, développée en JavaScript vanilla.
 
-Projet développé en **JavaScript vanilla**, sans backend, sans dépendance externe, avec un contrôle total des données et des mises à jour.
-
-© 2026 — Tous droits réservés.
+Projet personnel, conçu pour un usage réel sur smartphone, en conditions de mobilité.
 
 ---
 
-## Positionnement du logiciel
+## Présentation générale
 
-Planning PWA est un **logiciel métier offline-first**, pensé pour les chauffeurs (bus, transport, services roulants) confrontés à :
+Planning PWA est une application **offline-first** permettant la consultation et la saisie d’un planning de travail.
 
-- un accès réseau instable ou inexistant,
-- un besoin de consultation rapide,
-- une saisie simple et fiable,
-- une utilisation quotidienne sur smartphone.
+L’application fonctionne :
 
-L’application fonctionne **sans serveur**, **sans compte utilisateur**, et reste entièrement opérationnelle hors connexion.
+- sans serveur,
+- sans compte utilisateur,
+- sans dépendance externe,
+- avec stockage local uniquement.
 
----
-
-## Fonctionnalités principales
-
-- Consultation instantanée du planning (jour / mois)
-- Saisie guidée du planning
-- Gestion des congés et périodes saisonnières
-- Fonctionnement 100 % hors ligne
-- Activation locale par code (sans backend)
-- Sauvegarde et restauration complètes des données
-- Installation PWA (Android / iOS)
-- Mini-jeu intégré (Tetribus)
+Elle est conçue pour être installée comme une application native via les mécanismes PWA.
 
 ---
 
-## Principes techniques clés
+## Objectif fonctionnel
 
-- **Offline-first strict**
-- **Stockage local uniquement**
-  - IndexedDB
-  - LocalStorage
-- **Aucun serveur**
-- **Aucune authentification distante**
-- **Aucune dépendance externe**
-- **Contrôle explicite des mises à jour**
+L’application permet de :
+
+- consulter rapidement un planning,
+- naviguer par jour et par mois,
+- saisir et modifier les services,
+- fonctionner de manière fiable hors connexion.
+
+Le périmètre fonctionnel est volontairement restreint et maîtrisé.
+
+---
+
+## Contexte métier
+
+L’application a été conçue à partir d’un besoin réel de terrain, avec les contraintes suivantes :
+
+- usage principal sur smartphone,
+- réseau instable ou absent,
+- nécessité de rapidité et de lisibilité,
+- fiabilité des données locales.
+
+Voir : `docs/CONTEXTE_METIER.md`
 
 ---
 
 ## Architecture technique
 
 - HTML / CSS / JavaScript vanilla
-- Router maison par masquage DOM
-- Architecture modulaire (data / domain / components / state)
+- Architecture modulaire (components / domain / data / state)
+- Router interne par masquage DOM
+- IndexedDB pour les données persistantes
+- LocalStorage pour l’état applicatif léger
 - Service Worker avec cache versionné
 - Hébergement GitHub Pages
 
-📄 Voir : [`ARCHITECTURE.md`](ARCHITECTURE.md)
+Aucune bibliothèque externe n’est utilisée.
+
+Voir : `ARCHITECTURE.md`
 
 ---
 
-## Activation et sécurité
+## Offline et mises à jour
 
-L’accès à l’application est contrôlé par une **activation locale par code**, liée à l’appareil.
+L’application est conçue pour fonctionner **entièrement hors ligne**.
 
-- Pas de compte
-- Pas de serveur
-- Pas de transmission de données
-- Activation demandée une seule fois par appareil
-- L’activation est restaurée automatiquement après import des données
+La gestion du cache et des mises à jour repose exclusivement sur le Service Worker, avec un comportement déterministe et contrôlé.
 
-📄 Voir : [`docs/ACTIVATION.md`](docs/ACTIVATION.md)
+Voir : `docs/SERVICE_WORKER.md`
 
 ---
 
-## Sauvegarde et restauration des données
+## Activation de l’application
 
-Le logiciel permet :
+L’application nécessite une activation locale par code lors de la première utilisation sur un appareil.
 
-- l’export complet des données utilisateur,
-- la restauration intégrale sur un nouvel appareil,
-- le changement de téléphone **sans perte de données ni réactivation**.
+L’activation est :
 
-Les données restent **strictement locales**.
+- liée à l’appareil,
+- stockée localement,
+- restaurable via sauvegarde.
 
-📄 Voir : [`docs/SAUVEGARDE_RESTAURATION.md`](docs/SAUVEGARDE_RESTAURATION.md)
-
----
-
-## Service Worker et mises à jour
-
-Le Service Worker est conçu pour garantir :
-
-- disponibilité permanente,
-- cache maîtrisé,
-- mises à jour prévisibles et contrôlées,
-- absence de blocage sur ancienne version.
-
-La notification de mise à jour n’apparaît **uniquement** lorsqu’une nouvelle version est réellement prête.
-
-📄 Voir : [`docs/SERVICE_WORKER.md`](docs/SERVICE_WORKER.md)
+Voir : `docs/ACTIVATION.md`
 
 ---
 
-## Installation sur smartphone (PWA)
+## Sauvegarde et restauration
+
+Les données peuvent être :
+
+- sauvegardées dans un fichier local,
+- restaurées intégralement sur le même appareil ou un autre.
+
+La sauvegarde inclut l’activation si elle est présente.
+
+Voir : `docs/SAUVEGARDE_RESTAURATION.md`
+
+---
+
+## Installation en tant qu’application (PWA)
 
 ### Android (Chrome)
 
 1. Ouvrir l’application dans Chrome.
 2. Menu ⋮ → **Ajouter à l’écran d’accueil**.
-3. Confirmer.
+3. Valider.
 
 ### iOS (Safari)
 
@@ -116,11 +114,11 @@ La notification de mise à jour n’apparaît **uniquement** lorsqu’une nouvel
 2. Bouton **Partager**.
 3. **Sur l’écran d’accueil**.
 
-L’application se comporte alors comme une application native.
+L’application apparaît ensuite comme une application native.
 
 ---
 
-## Aperçu visuel
+## Aperçu
 
 ### Accueil
 
@@ -142,7 +140,11 @@ L’application se comporte alors comme une application native.
 
 ## Licence
 
-Projet propriétaire.  
-Toute utilisation, reproduction ou diffusion sans autorisation est interdite.
+Voir le fichier `LICENSE`.
 
-Voir le fichier [`LICENSE`](LICENSE).
+---
+
+## Statut
+
+Projet stable, autonome, sans dépendance externe.  
+Le comportement documenté fait foi.

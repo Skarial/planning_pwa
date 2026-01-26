@@ -1,78 +1,114 @@
 # Sauvegarde et restauration des données
 
-Ce document explique comment sauvegarder et restaurer les données de l’application.
+Ce document décrit le mécanisme de sauvegarde et de restauration des données de l’application.
+
+Toutes les opérations sont effectuées **localement**, sans serveur et sans connexion réseau.
 
 ---
 
-## Pourquoi effectuer une sauvegarde
+## Principe général
 
-Il est fortement recommandé d’effectuer une sauvegarde :
+L’application permet :
 
-- avant de changer de téléphone,
-- avant une réinitialisation de l’appareil,
-- à titre de sécurité.
+- l’export complet des données locales dans un fichier,
+- l’import de ce fichier sur le même appareil ou un autre appareil.
+
+Ces mécanismes permettent de conserver l’état de l’application en cas de :
+
+- changement de téléphone,
+- réinstallation,
+- réinitialisation volontaire.
 
 ---
 
-## Contenu de la sauvegarde
+## Données concernées par la sauvegarde
 
-Le fichier de sauvegarde contient :
+La sauvegarde contient l’intégralité des données stockées localement, notamment :
 
 - le planning,
+- les services,
 - les paramètres,
 - l’état d’activation.
 
-Aucune donnée n’est envoyée sur internet.
+Toutes les données proviennent de la base IndexedDB de l’application.
 
 ---
 
-## Sauvegarder les données (Export)
+## Export des données
 
-1. Ouvrez le menu de l’application.
-2. Sélectionnez **Changement de téléphone**.
-3. Appuyez sur **Sauvegarder mes données**.
+### Fonctionnement
+
+Lors d’un export :
+
+1. La base de données locale est ouverte.
+2. Tous les stores connus sont lus.
+3. Les données sont regroupées dans un objet structuré.
 4. Un fichier de sauvegarde est généré.
 
-Conservez ce fichier dans un endroit sûr  
-(ex : stockage cloud personnel, clé USB, e-mail).
+Le fichier contient :
+
+- les données,
+- des métadonnées (version, date, format).
+
+Aucune donnée n’est transmise à l’extérieur.
 
 ---
 
-## Restaurer les données (Import)
+## Import des données
 
-1. Installez l’application sur l’appareil cible.
-2. Ouvrez le menu.
-3. Sélectionnez **Changement de téléphone**.
-4. Appuyez sur **Restaurer mes données**.
-5. Sélectionnez le fichier de sauvegarde.
+### Fonctionnement
 
-L’application redémarre automatiquement.
+Lors d’un import :
 
----
+1. Le fichier de sauvegarde est chargé.
+2. Son format est validé.
+3. Les données locales existantes sont supprimées.
+4. Les données du fichier sont restaurées.
+5. L’application redémarre automatiquement.
 
-## Restauration et activation
-
-Si l’application était activée au moment de la sauvegarde :
-
-- **aucun nouveau code d’activation n’est demandé** après restauration.
+La restauration est **totale**.
 
 ---
 
-## Changement de téléphone — résumé rapide
+## Effet sur l’activation
 
-1. Ancien téléphone :
-   - effectuer une sauvegarde.
-2. Nouveau téléphone :
-   - installer l’application,
-   - restaurer la sauvegarde.
+Si la sauvegarde contenait une activation valide :
 
-Toutes les données et l’activation sont récupérées.
+- l’activation est restaurée,
+- aucun nouveau code d’activation n’est requis.
+
+L’activation est traitée comme une donnée locale persistante.
 
 ---
 
-## Confidentialité
+## Compatibilité des sauvegardes
 
-- Toutes les données sont stockées localement.
-- Aucun compte utilisateur.
-- Aucune communication réseau requise.
-- Fonctionnement hors ligne.
+- Le format de sauvegarde est versionné.
+- Une sauvegarde incompatible est refusée.
+- Aucune tentative de migration automatique n’est effectuée.
+
+---
+
+## Sécurité et confidentialité
+
+- Les données ne quittent jamais l’appareil sans action explicite.
+- Aucun chiffrement n’est appliqué au fichier de sauvegarde.
+- La confidentialité repose sur le contrôle du fichier par l’utilisateur.
+
+---
+
+## Limites
+
+- La sauvegarde ne protège pas contre une suppression définitive sans export préalable.
+- Le fichier peut être modifié manuellement, ce qui peut entraîner un import invalide.
+
+---
+
+## Statut du document
+
+Ce document décrit un comportement **contractuel**.
+
+Toute modification du format ou du périmètre de sauvegarde doit être :
+
+- implémentée dans le code,
+- reflétée dans ce document.

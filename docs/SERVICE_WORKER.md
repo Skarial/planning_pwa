@@ -31,3 +31,52 @@ La bannière de mise à jour **s’affiche uniquement si** :
 ```js
 registration.waiting === true;
 ```
+
+---
+
+## 4. Cycle de mise à jour
+
+Lorsqu’une nouvelle version de l’application est déployée :
+
+1. Le navigateur installe un nouveau Service Worker.
+2. Ce Service Worker passe à l’état `waiting`.
+3. Tant que l’utilisateur n’a pas validé la mise à jour :
+   - l’ancien Service Worker reste actif,
+   - l’application continue de fonctionner normalement.
+
+---
+
+## 5. Validation utilisateur
+
+Lorsque l’utilisateur valide la mise à jour :
+
+1. L’application envoie le message `SKIP_WAITING` au Service Worker en attente.
+2. Le nouveau Service Worker devient actif.
+3. L’événement `controllerchange` est déclenché.
+4. L’application est rechargée automatiquement.
+5. La nouvelle version est immédiatement utilisée.
+
+Aucune mise à jour n’est appliquée sans action explicite de l’utilisateur.
+
+---
+
+## 6. Portée de la règle
+
+Cette logique :
+
+- est indépendante de l’activation par code,
+- est indépendante des données locales,
+- est indépendante du statut nouvel utilisateur / utilisateur existant.
+
+Le Service Worker reste l’unique autorité décisionnelle.
+
+---
+
+## 7. Statut du document
+
+Ce document décrit un **comportement contractuel**.
+
+Toute modification du mécanisme de mise à jour doit entraîner :
+
+- une mise à jour du code,
+- une mise à jour de ce document.

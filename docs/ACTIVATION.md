@@ -1,55 +1,108 @@
 # Activation de l’application
 
-Ce document explique le fonctionnement de l’activation de l’application.
+Ce document décrit le fonctionnement du système d’activation de l’application.
+
+Il s’agit d’un mécanisme **local**, **hors ligne**, sans compte utilisateur et sans serveur.
 
 ---
 
-## Pourquoi une activation est nécessaire
+## Principe général
 
-L’application nécessite une **activation par code** lors de la première utilisation afin de :
+L’application nécessite une **activation par code** lors de la première utilisation sur un appareil.
 
-- contrôler l’accès au logiciel,
-- lier l’utilisation à un appareil,
-- fonctionner sans compte, sans serveur et sans connexion internet.
+Cette activation permet :
 
-L’activation est locale à l’appareil.
+- de contrôler l’accès à l’application,
+- de lier l’utilisation à un appareil unique,
+- sans authentification,
+- sans création de compte,
+- sans communication réseau.
+
+Une fois activée, l’application reste utilisable sans nouvelle vérification sur le même appareil.
 
 ---
 
-## Première activation — étape par étape
+## Device ID
 
-1. Ouvrez l’application.
+Lors du premier lancement :
+
+- un identifiant unique appelé **Device ID** est généré,
+- il est propre à l’appareil,
+- il est stocké localement,
+- il n’est jamais modifié automatiquement.
+
+Le Device ID est affiché à l’écran d’activation.
+
+---
+
+## Procédure d’activation
+
+1. L’utilisateur ouvre l’application.
 2. Un écran **« Activation requise »** s’affiche.
-3. Un identifiant appelé **Device ID** est affiché.
-4. Transmettez ce Device ID à la personne ou au service en charge de l’activation.
-5. Vous recevez un **code d’activation**.
-6. Saisissez le code dans le champ prévu.
-7. Appuyez sur **Valider**.
-
----
-
-## Après activation
+3. Le **Device ID** est visible à l’écran.
+4. Le Device ID est transmis pour génération du code.
+5. Un **code d’activation** correspondant est fourni.
+6. Le code est saisi dans l’application.
+7. L’activation est validée.
 
 Une fois l’activation validée :
 
-- l’accès à l’application est permanent,
-- aucune nouvelle activation n’est demandée sur ce même appareil,
-- l’application fonctionne normalement, même hors ligne.
+- l’écran d’activation disparaît,
+- l’application démarre normalement,
+- l’activation est conservée localement.
 
 ---
 
-## En cas d’erreur
+## Vérification du code
 
-Si le message **« Code invalide »** s’affiche :
+- Le code est vérifié **localement** dans l’application.
+- Aucun code n’est stocké en clair.
+- La vérification repose sur :
+  - le Device ID,
+  - un secret intégré à l’application.
 
-- vérifiez la saisie du code (pas d’espace en trop),
-- vérifiez que le Device ID transmis est correct,
-- si nécessaire, demandez un nouveau code.
+Aucune liste de codes n’est embarquée.
 
 ---
 
-## Points importants
+## Persistance de l’activation
 
-- L’activation est **liée à l’appareil**.
-- Elle n’utilise **aucun serveur**.
-- Elle est stockée **localement** sur le téléphone.
+L’état d’activation :
+
+- est stocké localement,
+- est indépendant de la version de l’application,
+- n’est pas lié au Service Worker,
+- n’est pas réinitialisé lors d’une mise à jour.
+
+---
+
+## Erreur d’activation
+
+Si le code saisi est invalide :
+
+- l’activation est refusée,
+- l’application reste bloquée sur l’écran d’activation,
+- aucune donnée n’est modifiée.
+
+---
+
+## Portée et limites
+
+Ce système :
+
+- n’est pas un DRM,
+- n’a pas vocation à être inviolable,
+- peut être contourné par un utilisateur technique.
+
+Il s’agit d’un **contrôle d’usage**, pas d’un mécanisme de sécurité forte.
+
+---
+
+## Statut du document
+
+Ce document décrit un comportement **contractuel**.
+
+Toute modification du système d’activation doit être :
+
+- implémentée dans le code,
+- reflétée dans ce document.
