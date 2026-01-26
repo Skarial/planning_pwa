@@ -4,6 +4,8 @@
 export const APP_VERSION = "1.0.96";
 
 const UPDATE_REMIND_DELAY = 6 * 60 * 60 * 1000; // 6 heures
+import { getConfig } from "./data/db.js";
+import { showActivationScreen } from "./components/activationScreen.js";
 
 import {
   registerServiceWorker,
@@ -31,7 +33,15 @@ if ("requestIdleCallback" in window) {
 }
 
 async function initApp() {
-  // 1️⃣ Affichage immédiat
+  // 0️⃣ Vérification activation (BLOQUANTE)
+  const activation = await getConfig("activation_ok");
+
+  if (!activation || activation.value !== "true") {
+    await showActivationScreen();
+    return;
+  }
+
+  // 1️⃣ Affichage normal
   initMenu();
   showHome();
 
@@ -39,6 +49,7 @@ async function initApp() {
   initServicesIfNeeded(); // sans await
   registerServiceWorker(); // sans attendre
 }
+
 document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("update-reload")

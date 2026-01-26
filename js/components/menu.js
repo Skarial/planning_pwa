@@ -1,3 +1,6 @@
+import { exportAllData } from "../data/export-db.js";
+import { importAllData } from "../data/import-db.js";
+
 import {
   refreshCurrentView,
   showHome,
@@ -269,6 +272,29 @@ export function initMenu() {
     consultForm.classList.add("hidden");
     showHomeAtDate(consultInput.value);
     closeMenu();
+  });
+  // =======================
+  // CHANGEMENT DE TÉLÉPHONE
+  // =======================
+
+  const phoneBtn = document.getElementById("menu-phone-change");
+  const phoneSub = document.getElementById("menu-phone-sub");
+
+  const exportBtn = document.getElementById("menu-export");
+  const importBtn = document.getElementById("menu-import");
+
+  phoneBtn?.addEventListener("click", () => {
+    phoneSub.classList.toggle("hidden");
+  });
+
+  exportBtn?.addEventListener("click", async () => {
+    closeMenu();
+    await exportAllData();
+  });
+
+  importBtn?.addEventListener("click", async () => {
+    closeMenu();
+    await importAllData();
   });
 
   // =======================
