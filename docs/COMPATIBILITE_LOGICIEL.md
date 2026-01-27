@@ -1,3 +1,16 @@
+## Générateur d’activation CLI (outil développeur)
+
+Un script local permet de générer un code d’activation sans navigateur.
+
+- Fichier :
+  -- tools/generate-activation.py : logique de génération
+  -- tools/gen-code : raccourci exécutable
+- Usage : ./tools/gen-code DEVICE_ID
+- Exemple :
+  -- ./tools/gen-code a9c4f2d1-87b3
+  -- Résultat : 3f8a91c4b2de
+- Algorithme strictement identique au générateur HTML
+
 # Compatibilité logiciel — Planning PWA
 
 ## Objectif

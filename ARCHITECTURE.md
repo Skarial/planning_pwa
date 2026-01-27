@@ -1,5 +1,35 @@
 # ARCHITECTURE — Planning PWA Chauffeurs
 
+---
+
+## Outil interne — Générateur d’activation
+
+Un outil interne est intégré au dépôt pour générer les codes d’activation
+par appareil.
+
+### Emplacement
+
+tools/generator-activation/
+
+### Caractéristiques
+
+- Usage développeur uniquement
+- Aucune dépendance avec l’application principale
+- PWA installable indépendamment
+- Fonctionne hors ligne
+- Service Worker isolé (scope propre)
+- Aucune donnée utilisateur
+- Aucun impact sur les utilisateurs existants
+
+### Règles
+
+- Ne doit jamais être lié depuis l’interface utilisateur
+- Ne partage aucun code avec l’application principale
+- Ne doit contenir aucune logique métier Planning
+- Peut évoluer indépendamment
+
+### Accès (GitHub Pages)
+
 ## 1. Vue d’ensemble
 
 Application web **PWA offline-first** destinée à la consultation et à la saisie de planning en usage mobile.
