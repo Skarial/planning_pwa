@@ -2,28 +2,28 @@
 
 ## 1. Vue d’ensemble
 
-Application web **PWA offline-first** destinée aux chauffeurs de bus pour gérer leur planning personnel quotidien.
+Application web **PWA offline-first** destinée à la consultation et à la saisie de planning en usage mobile.
 
-Contraintes majeures :
+Contraintes structurantes :
 
-- Usage smartphone
-- Réseau instable ou absent
-- Rapidité d’accès
-- Simplicité maximale
+- Usage smartphone prioritaire
+- Réseau absent ou instable
+- Démarrage rapide
+- Fonctionnement 100 % hors ligne
 - Aucune authentification
 - Aucune donnée serveur
 
-Technologies :
+Technologies utilisées :
 
 - HTML / CSS / JavaScript vanilla
+- IndexedDB + LocalStorage
 - Service Worker avec cache versionné
-- LocalStorage + IndexedDB
-- Hébergement GitHub Pages
-- Router maison par masquage DOM
+- Hébergement statique (GitHub Pages)
+- Router interne par masquage DOM
 
 ---
 
-## 2. Structure des dossiers
+## 2. Arborescence du projet
 
 index.html  
 service-worker.js  
@@ -39,17 +39,27 @@ js/
 &nbsp;&nbsp;utils.js
 
 &nbsp;&nbsp;components/  
+&nbsp;&nbsp;&nbsp;&nbsp;activationScreen.js  
 &nbsp;&nbsp;&nbsp;&nbsp;home.js  
 &nbsp;&nbsp;&nbsp;&nbsp;day.js  
 &nbsp;&nbsp;&nbsp;&nbsp;month.js  
 &nbsp;&nbsp;&nbsp;&nbsp;guided-month.js  
 &nbsp;&nbsp;&nbsp;&nbsp;tetribus.js  
-&nbsp;&nbsp;&nbsp;&nbsp;calendar.js  
 &nbsp;&nbsp;&nbsp;&nbsp;menu.js
+
+&nbsp;&nbsp;domain/  
+&nbsp;&nbsp;&nbsp;&nbsp;activation.js  
+&nbsp;&nbsp;&nbsp;&nbsp;conges.js  
+&nbsp;&nbsp;&nbsp;&nbsp;periods.js  
+&nbsp;&nbsp;&nbsp;&nbsp;services-availability.js  
+&nbsp;&nbsp;&nbsp;&nbsp;services-grouping.js
 
 &nbsp;&nbsp;data/  
 &nbsp;&nbsp;&nbsp;&nbsp;db.js  
 &nbsp;&nbsp;&nbsp;&nbsp;storage.js  
+&nbsp;&nbsp;&nbsp;&nbsp;device.js  
+&nbsp;&nbsp;&nbsp;&nbsp;export-db.js  
+&nbsp;&nbsp;&nbsp;&nbsp;import-db.js  
 &nbsp;&nbsp;&nbsp;&nbsp;services.js  
 &nbsp;&nbsp;&nbsp;&nbsp;services-init.js  
 &nbsp;&nbsp;&nbsp;&nbsp;services-catalog.js
@@ -60,132 +70,141 @@ js/
 &nbsp;&nbsp;sw/  
 &nbsp;&nbsp;&nbsp;&nbsp;sw-register.js
 
-&nbsp;&nbsp;utils/  
-&nbsp;&nbsp;&nbsp;&nbsp;conges.js  
-&nbsp;&nbsp;&nbsp;&nbsp;periods.js  
-&nbsp;&nbsp;&nbsp;&nbsp;services-availability.js  
-&nbsp;&nbsp;&nbsp;&nbsp;services-grouping.js
+&nbsp;&nbsp;games/  
+&nbsp;&nbsp;&nbsp;&nbsp;tetribus/  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tetribus.game.js  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tetribus.render.js
 
-games/tetribus/  
-&nbsp;&nbsp;tetribus.game.js  
-&nbsp;&nbsp;tetribus.render.js
+docs/  
+&nbsp;&nbsp;ACTIVATION.md  
+&nbsp;&nbsp;SAUVEGARDE_RESTAURATION.md  
+&nbsp;&nbsp;SERVICE_WORKER.md  
+&nbsp;&nbsp;CONTEXTE_METIER.md
 
 ---
 
-## 3. Gestion des vues (Router)
+## 3. Initialisation de l’application
 
-Le routing ne repose sur aucun framework.
+`app.js` orchestre l’ordre d’exécution.
+
+Ordre strict :
+
+1. Vérification de l’activation locale (`config.activation_ok`)
+2. Si non activée :
+   - affichage exclusif de l’écran d’activation
+   - aucune autre initialisation
+3. Si activée :
+   - initialisation du menu
+   - affichage de la vue d’accueil
+4. Tâches non bloquantes :
+   - initialisation des services
+   - enregistrement du Service Worker
+   - surveillance des mises à jour
+
+Aucune vue métier n’est accessible avant activation.
+
+---
+
+## 4. Activation
+
+L’activation est **locale, hors ligne et sans serveur**.
+
+- Interface : `components/activationScreen.js`
+- Logique : `domain/activation.js`
+- Identifiant appareil : `data/device.js`
+- Persistance : IndexedDB (`config.activation_ok`)
+
+Caractéristiques :
+
+- Une activation par appareil
+- Aucun compte utilisateur
+- Aucun échange réseau
+- Activation restaurable via import des données
+
+Détails fonctionnels : `docs/ACTIVATION.md`
+
+---
+
+## 5. Navigation et vues
+
+Le routing est interne et sans framework.
 
 `router.js` :
 
-- Masque/affiche les vues du DOM
-- Une vue = un module dans `components/`
-- Navigation déclenchée par le menu (`menu.js`)
-- Pas de rechargement de page
+- Une seule page HTML
+- Vues sous forme de sections DOM
+- Affichage par masquage / affichage
+- Navigation déclenchée uniquement par le menu
 
-Principe : une seule page HTML, affichage dynamique par JavaScript.
-
----
-
-## 4. Stockage des données
-
-### LocalStorage
-
-Utilisé pour :
-
-- Paramètres simples
-- État léger persistant
-
-### IndexedDB (`data/db.js`, `storage.js`)
-
-Utilisé pour :
-
-- Le planning complet
-- Les services
-- Les données structurées
-
-Objectif : fonctionnement 100% offline sans limite pratique.
+Chaque vue est un module autonome dans `components/`.
 
 ---
 
-## 5. Logique métier
+## 6. Stockage des données
 
-`data/services*.js` et `utils/` contiennent :
+LocalStorage :
 
-- Catalogue des services
-- Règles de regroupement
-- Disponibilités
-- Périodes
-- Congés
+- États légers et transitoires uniquement
 
-Cette logique est séparée de l’interface utilisateur.
+IndexedDB :
 
----
+- Planning
+- Services
+- Configuration
+- Activation
+- Sauvegarde et restauration
 
-## 6. Gestion d’état
-
-`state/consulted-date.js`
-
-Synchronise la date consultée entre :
-
-- home
-- day
-- month
-- guided-month
-
-Sans dépendance externe.
+Objectif : stockage structuré, durable et hors ligne.
 
 ---
 
-## 7. Service Worker
+## 7. Logique métier
 
-`service-worker.js` + `sw/sw-register.js`
+Séparation stricte :
 
-Fonctions :
+- `domain/` : logique métier pure
+- `data/` : accès et persistance des données
+- `state/` : état global minimal partagé
 
-- Cache complet de l’application
-- Fonctionnement offline total
-- Versionning du cache (APP_VERSION / CACHE_NAME)
-- Notification de mise à jour utilisateur
-
-Problème classique PWA résolu : utilisateurs bloqués sur un ancien cache.
+Aucune logique métier n’est implémentée dans l’interface.
 
 ---
 
-## 8. Initialisation de l’application
+## 8. Service Worker
 
-`app.js` :
+Le Service Worker gère :
 
-- Initialise IndexedDB
-- Initialise les services
-- Démarre le router
-- Enregistre le Service Worker
+- la mise en cache complète de l’application,
+- le fonctionnement hors ligne total,
+- la gestion explicite des mises à jour.
+
+Règle unique :
+
+- la bannière de mise à jour s’affiche uniquement si `registration.waiting === true`.
+
+Aucune décision de mise à jour n’est basée sur `APP_VERSION` côté interface.
+
+Détails : `docs/SERVICE_WORKER.md`
 
 ---
 
 ## 9. Séparation des responsabilités
 
-| Dossier    | Rôle                                       |
-| ---------- | ------------------------------------------ |
-| components | Interface utilisateur / vues               |
-| data       | Données et logique métier                  |
-| state      | État global minimal                        |
-| utils      | Règles métier                              |
-| sw         | Enregistrement Service Worker              |
-| css        | Interface visuelle                         |
-| games      | Module isolé sans impact sur l’application |
+components : interface utilisateur  
+domain : logique métier  
+data : persistance et accès aux données  
+state : état global minimal  
+sw : cycle de vie PWA  
+games : module isolé  
+css : présentation visuelle
 
 ---
 
 ## 10. Principes de conception
 
-- Aucune dépendance externe
 - Aucun framework
+- Aucune dépendance externe
 - Offline-first réel
-- Données locales uniquement (RGPD natif)
-- Code volontairement simple pour être repris facilement
-- Architecture pensée pour être industrialisée ultérieurement (TypeScript, tests, backend possible)
-
----
-
-Cette application est un prototype métier fonctionnel conçu pour être facilement repris et industrialisé par une équipe de développement.
+- Données locales uniquement
+- Comportement déterministe
+- Code lisible et structuré
