@@ -71,3 +71,50 @@ Set-Content $swPath $swContent
 git add $swPath
 
 Write-Host "CACHE_VERSION synchronisée via placeholder"
+# ===============================
+# BUMP GENERATOR VERSION (ISOLÉ)
+# ===============================
+
+$genVersionPath = "tools/generator-activation/GENERATOR_VERSION.txt"
+$genSwPath = "tools/generator-activation/service-worker.js"
+$genPlaceholder = "__GENERATOR_VERSION__"
+
+# --- LECTURE VERSION GÉNÉRATEUR ---
+if (-not (Test-Path $genVersionPath)) {
+    Write-Error "GENERATOR_VERSION.txt introuvable"
+    exit 1
+}
+
+$genVersion = Get-Content $genVersionPath -Raw
+if ($genVersion -notmatch '^(\d+)\.(\d+)\.(\d+)$') {
+    Write-Error "Version générateur invalide"
+    exit 1
+}
+
+$genMajor = $matches[1]
+$genMinor = $matches[2]
+$genPatch = [int]$matches[3] + 1
+$newGenVersion = "$genMajor.$genMinor.$genPatch"
+
+Set-Content $genVersionPath $newGenVersion
+git add $genVersionPath
+
+Write-Host "GENERATOR_VERSION mise à jour -> $newGenVersion"
+
+# --- INJECTION TEMPORAIRE DANS LE SW GÉNÉRATEUR ---
+$genSwContent = Get-Content $genSwPath -Raw
+
+if ($genSwContent -notmatch $genPlaceholder) {
+    Write-Error "__GENERATOR_VERSION__ absent du service-worker générateur"
+    exit 1
+}
+
+$genSwInjected = $genSwContent -replace $genPlaceholder, $newGenVersion
+Set-Content $genSwPath $genSwInjected
+git add $genSwPath
+
+# --- RESTAURATION DU PLACEHOLDER ---
+Set-Content $genSwPath $genSwContent
+git add $genSwPath
+
+Write-Host "CACHE générateur synchronisé via placeholder"

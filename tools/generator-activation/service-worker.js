@@ -1,4 +1,5 @@
-const CACHE_NAME = "generator-cache-v1";
+const GENERATOR_VERSION = "__GENERATOR_VERSION__";
+const CACHE_NAME = `generator-cache-${GENERATOR_VERSION}`;
 
 const FILES = [
   "./",
@@ -26,3 +27,4 @@ self.addEventListener("fetch", (event) => {
     fetch(event.request).catch(() => caches.match(event.request)),
   );
 });
+
