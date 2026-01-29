@@ -19,6 +19,7 @@ export async function exportDatabase() {
   const db = await openDB();
 
   const exportData = {
+    signature: "PLANNING_PWA_EXPORT_V1",
     meta: {
       app: "planning-pwa",
       exportVersion: 1,

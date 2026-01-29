@@ -1,7 +1,7 @@
 /*
   Application Planning PWA
 */
-export const APP_VERSION = "1.0.124";
+export const APP_VERSION = "1.0.125";
 
 import { getConfig } from "./data/db.js";
 import { showActivationScreen } from "./components/activationScreen.js";
@@ -25,7 +25,9 @@ async function initApp() {
   // 0️⃣ Vérification activation (BLOQUANTE)
   const activation = await getConfig("activation_ok");
 
-  if (!activation || activation.value !== "true") {
+  const isActivated = activation?.value === "true";
+
+  if (!isActivated) {
     await showActivationScreen();
     return;
   }
@@ -98,31 +100,4 @@ async function watchServiceWorkerUpdates() {
     });
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -33,7 +33,6 @@ export async function importDatabase(exportData) {
   // 3. Redémarrage obligatoire
   location.reload();
 }
-
 // =======================
 // VALIDATION FORMAT
 // =======================
@@ -41,6 +40,10 @@ export async function importDatabase(exportData) {
 function validateExportFormat(data) {
   if (!data || typeof data !== "object") {
     throw new Error("Export invalide : objet attendu");
+  }
+
+  if (data.signature !== "PLANNING_PWA_EXPORT_V1") {
+    throw new Error("Export invalide : signature inconnue");
   }
 
   if (!data.meta || data.meta.exportVersion !== 1) {

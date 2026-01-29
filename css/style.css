@@ -1060,6 +1060,14 @@ button,
   color: var(--color-text-muted);
   line-height: 1.4;
 }
+#activation-import {
+  height: var(--input-height);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
 
 /* =======================
    DEVICE ID

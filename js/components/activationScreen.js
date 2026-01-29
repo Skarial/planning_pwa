@@ -1,7 +1,7 @@
 // js/components/activationScreen.js
 
 import { APP_VERSION } from "../app.js";
-
+import { importAllData } from "../data/import-db.js";
 import { getOrCreateDeviceId } from "../data/device.js";
 import { setConfig } from "../data/db.js";
 import { checkActivation } from "../adapters/activation.web.js";
@@ -47,6 +47,9 @@ function render(deviceId) {
         placeholder="Code d’activation"
         autocomplete="off"
       />
+      <button id="activation-import" class="secondary">
+        Importer mes données
+      </button>
 
       <button id="activation-validate">Valider</button>
 
@@ -70,6 +73,17 @@ function bindEvents(root, deviceId) {
   const button = root.querySelector("#activation-validate");
   const error = root.querySelector("#activation-error");
   const success = root.querySelector("#activation-success");
+  const importBtn = root.querySelector("#activation-import");
+
+  importBtn?.addEventListener("click", async () => {
+    try {
+      await importAllData();
+      // ⚠️ importAllData déclenche déjà location.reload()
+    } catch (e) {
+      // message simple, pas de logique métier
+      alert("Import des données impossible");
+    }
+  });
 
   const copyBtn = root.querySelector("#copy-device-id");
   const copyFeedback = root.querySelector("#copy-feedback");
@@ -85,7 +99,11 @@ function bindEvents(root, deviceId) {
   async function validate() {
     error.hidden = true;
     success.hidden = true;
-
+    if (!deviceId) {
+      error.textContent = "Device ID indisponible. Rechargez la page.";
+      error.hidden = false;
+      return;
+    }
     const code = input.value.trim();
     if (!code) {
       error.hidden = false;
