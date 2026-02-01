@@ -76,11 +76,18 @@ function bindEvents(root, deviceId) {
   const importBtn = root.querySelector("#activation-import");
 
   importBtn?.addEventListener("click", async () => {
-    root.innerHTML = "<p>Restauration des données…</p>";
+    const originalText = importBtn.textContent;
+    importBtn.disabled = true;
+    importBtn.textContent = "Restauration des donnees...";
+
     try {
-      await importAllData();
+      const ok = await importAllData();
+      if (!ok) {
+        importBtn.disabled = false;
+        importBtn.textContent = originalText;
+      }
     } catch (e) {
-      alert("Import des données impossible");
+      alert("Import des donnees impossible");
       location.reload();
     }
   });
@@ -135,3 +142,4 @@ function bindEvents(root, deviceId) {
     }
   });
 }
+

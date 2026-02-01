@@ -16,6 +16,13 @@ export function registerServiceWorker(onUpdateAvailable) {
 
       console.log("[SW] enregistré");
 
+      // SW deja pret (ex: nouvelle version en attente)
+      if (swRegistration.waiting && navigator.serviceWorker.controller) {
+        if (typeof onUpdateAvailable === "function") {
+          onUpdateAvailable(swRegistration);
+        }
+      }
+
       // Détection fiable d'une nouvelle version
       swRegistration.addEventListener("updatefound", () => {
         const newWorker = swRegistration.installing;

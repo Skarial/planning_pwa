@@ -13,6 +13,7 @@ const CORE_ASSETS = [
   "./",
   "./index.html",
   "./css/style.css",
+  "./css/tetribus.css",
   "./js/app.js",
   "./manifest.webmanifest",
 ];
@@ -60,14 +61,20 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // JS & CSS : réseau prioritaire (OBLIGATOIRE)
+  // JS & CSS : réseau prioritaire + fallback cache
   if (req.destination === "script" || req.destination === "style") {
-    event.respondWith(fetch(req));
+    event.respondWith(networkFirst(req));
+    return;
+  }
+
+  // Images & fonts : cache-first
+  if (req.destination === "image" || req.destination === "font") {
+    event.respondWith(cacheFirst(req));
     return;
   }
 
   // Autres assets : cache-first
-  event.respondWith(caches.match(req).then((res) => res || fetch(req)));
+  event.respondWith(cacheFirst(req));
 });
 
 // =======================
@@ -79,6 +86,27 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
 });
+
+// =======================
+// HELPERS — CACHE
+// =======================
+
+function cacheFirst(req) {
+  return caches.match(req).then((cached) => cached || fetchAndCache(req));
+}
+
+function networkFirst(req) {
+  return fetchAndCache(req).catch(() => caches.match(req));
+}
+
+function fetchAndCache(req) {
+  return fetch(req).then((res) => {
+    if (res && res.ok) {
+      caches.open(CACHE_NAME).then((cache) => cache.put(req, res.clone()));
+    }
+    return res;
+  });
+}
 
 
 

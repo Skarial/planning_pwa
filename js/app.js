@@ -38,8 +38,7 @@ async function initApp() {
 
   // 2️⃣ Tâches non bloquantes
   initServicesIfNeeded(); // sans await
-  await registerServiceWorker();
-  watchServiceWorkerUpdates();
+  await registerServiceWorker(showUpdateBanner);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -75,30 +74,4 @@ function showUpdateBanner() {
 
   banner.classList.remove("hidden");
 }
-
-async function watchServiceWorkerUpdates() {
-  const reg = await getServiceWorkerRegistration();
-  if (!reg) return;
-
-  // SW déjà prêt
-  if (reg.waiting) {
-    showUpdateBanner();
-  }
-
-  // Nouveau SW détecté plus tard
-  reg.addEventListener("updatefound", () => {
-    const newWorker = reg.installing;
-    if (!newWorker) return;
-
-    newWorker.addEventListener("statechange", () => {
-      if (
-        newWorker.state === "installed" &&
-        navigator.serviceWorker.controller
-      ) {
-        showUpdateBanner();
-      }
-    });
-  });
-}
-
 

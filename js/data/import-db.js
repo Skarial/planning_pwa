@@ -110,16 +110,22 @@ export async function importAllData() {
       const confirmed = confirm(
         "L’import remplacera toutes les données existantes. Continuer ?",
       );
-      if (!confirmed) return;
+      if (!confirmed) {
+        resolve(false);
+        return;
+      }
 
       const file = input.files[0];
-      if (!file) return;
+      if (!file) {
+        resolve(false);
+        return;
+      }
 
       try {
         const text = await file.text();
         const data = JSON.parse(text);
         await importDatabase(data);
-        resolve();
+        resolve(true);
       } catch (err) {
         alert("Fichier de sauvegarde invalide");
         reject(err);
