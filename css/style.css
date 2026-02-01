@@ -943,6 +943,146 @@ button,
 }
 
 /* ==========================================================
+   BANNIERE INFO MIGRATION (TOP)
+   ========================================================== */
+
+.info-banner {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: calc(100% - 32px);
+  max-width: 560px;
+
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  border: 1px solid #e9ecef;
+
+  z-index: 10040;
+  animation: slideDown 0.25s ease;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.info-text strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.info-text span {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.35;
+}
+
+.info-steps {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.info-steps li {
+  margin: 6px 0;
+}
+
+.info-platform {
+  font-weight: 700;
+}
+
+.info-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.info-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.info-link-btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color-light);
+  background: var(--bg-button-secondary);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:active {
+  transform: scale(0.96);
+}
+
+.info-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.info-modal-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  width: calc(100% - 32px);
+  max-width: 640px;
+  padding: 18px;
+  max-height: 80dvh;
+  overflow: auto;
+}
+
+.info-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.info-modal-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.info-modal-close {
+  border: 1px solid var(--border-color-light);
+  background: var(--bg-button-secondary);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ==========================================================
    NOTIFICATION MISE À JOUR (TOP)
    ========================================================== */
 
@@ -1171,3 +1311,8 @@ button,
   font-weight: 600;
   color: #2c5f2d;
 }
+
+
+
+
+
