@@ -3,7 +3,7 @@
 // =======================
 
 const DB_NAME = "planningDB";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 const STORES = {
   SERVICES: "services",

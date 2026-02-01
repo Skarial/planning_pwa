@@ -7,7 +7,7 @@ import { openDB } from "./db.js";
 // =======================
 
 const DB_NAME = "planningDB";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 const STORES = ["services", "planning", "config"];
 
